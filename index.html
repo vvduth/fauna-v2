@@ -41,11 +41,36 @@
             height: 100%;
             z-index: -1;
         }
-        
-        .controls {
+          .controls {
             padding: 20px;
             background: #f8f9fa;
             border-top: 1px solid #ddd;
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .control-row button {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .control-row button:hover {
+            background: #e9ecef;
+        }
+        
+        .zoom-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
         
         .region-info {
@@ -63,13 +88,26 @@
         
         <div class="map-container">
             <canvas id="gameMap"></canvas>
-        </div>
-          <div class="controls">
+        </div>          <div class="controls">
             <h3>Game Controls</h3>
-            <button onclick="resetMap()">Reset Map</button>
-            <button onclick="toggleGrid()">Toggle Grid</button>
-            <button onclick="toggleBackgroundMap()">Toggle Background Map</button>
-            <button onclick="showAllRegions()">Show All Regions</button>
+            
+            <div class="control-row">
+                <button onclick="resetMap()">Reset Map</button>
+                <button onclick="toggleGrid()">Toggle Grid</button>
+                <button onclick="toggleBackgroundMap()">Toggle Background Map</button>
+                <button onclick="showAllRegions()">Show All Regions</button>
+            </div>
+            
+            <div class="control-row">
+                <button onclick="zoomIn()">Zoom In (+)</button>
+                <button onclick="zoomOut()">Zoom Out (-)</button>
+                <button onclick="centerMap()">Center Map</button>
+            </div>
+              <div class="zoom-info">
+                Use mouse wheel to zoom. Click and drag to pan the map.
+                <br>
+                <span id="zoomLevel">Zoom: 100%</span>
+            </div>
             
             <div class="region-info" id="regionInfo">
                 Click on the map to explore regions and place animals

@@ -6,6 +6,14 @@ let selectedRegion = null;
 let backgroundMapImage = null; // Store the background map image
 let mapImageLoaded = false;    // Track if background image is loaded
 
+// Zoom and pan variables
+let zoomLevel = 1.0;          // Current zoom level (1.0 = 100%)
+let panX = 0;                 // Horizontal pan offset
+let panY = 0;                 // Vertical pan offset
+let isDragging = false;       // Track if user is dragging the map
+let lastMouseX = 0;           // Last mouse X position for drag calculation
+let lastMouseY = 0;           // Last mouse Y position for drag calculation
+
 // Map configuration based on Fauna board game
 const MAP_CONFIG = {
     gridWidth: 37,  // Horizontal grid count (1-37)
@@ -122,7 +130,7 @@ function loadBackgroundMap() {
     };
     
     // Load the background map image
-    backgroundMapImage.src = 'map-3.png'; // Update with your image path
+    backgroundMapImage.src = 'maps-2.jpg'; // Update with your image path
 }
 
 function initializeGame() {
@@ -139,13 +147,19 @@ function initializeGame() {
     
     // Load background map image
     loadBackgroundMap();
-    
-    // Set up event listeners
+      // Set up event listeners
     canvas.addEventListener('click', handleMapClick);
+    canvas.addEventListener('wheel', handleMouseWheel);
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mouseleave', handleMouseUp); // Stop dragging if mouse leaves canvas
     window.addEventListener('resize', resizeCanvas);
-    
-    // Draw initial map (will redraw when image loads)
+      // Draw initial map (will redraw when image loads)
     drawMap();
+    
+    // Initialize zoom display
+    updateZoomDisplay();
     
     console.log('Fauna board game initialized successfully!');
 }
@@ -170,6 +184,13 @@ function drawMap() {
     // Clear the entire canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Save the current context state
+    ctx.save();
+    
+    // Apply zoom and pan transformations
+    ctx.translate(panX, panY);
+    ctx.scale(zoomLevel, zoomLevel);
+    
     // Draw background map image if loaded
     if (mapImageLoaded && backgroundMapImage) {
         drawBackgroundMap();
@@ -188,6 +209,9 @@ function drawMap() {
     
     // Draw region labels
     drawRegionLabels();
+    
+    // Restore the context state
+    ctx.restore();
 }
 
 function drawOceanBackground() {
@@ -202,7 +226,7 @@ function drawOceanBackground() {
 
 function drawBackgroundMap() {
     // Draw the background map image to fit the canvas
-    ctx.drawImage(backgroundMapImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundMapImage, 0, 0, canvas.width, canvas.height );
 }
 
 function drawWorldRegions() {
@@ -305,14 +329,23 @@ function drawRegionLabels() {
 }
 
 function handleMapClick(event) {
+    // Skip if user was dragging the map
+    if (isDragging) {
+        return;
+    }
+    
     // Get click coordinates relative to canvas
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
+    // Convert screen coordinates to world coordinates (accounting for zoom and pan)
+    const worldX = (x - panX) / zoomLevel;
+    const worldY = (y - panY) / zoomLevel;
+    
     // Convert to grid coordinates
-    const gridX = Math.floor(x / MAP_CONFIG.cellWidth);
-    const gridY = Math.floor(y / MAP_CONFIG.cellHeight);
+    const gridX = Math.floor(worldX / MAP_CONFIG.cellWidth);
+    const gridY = Math.floor(worldY / MAP_CONFIG.cellHeight);
     
     // Find which region was clicked
     const clickedRegion = findRegionAtCoordinates(gridX, gridY);
@@ -321,6 +354,72 @@ function handleMapClick(event) {
     updateRegionInfo(clickedRegion, gridX + 1, gridY + 1);
     
     console.log(`Clicked at grid (${gridX + 1}, ${String.fromCharCode(65 + gridY)})`);
+}
+
+function handleMouseWheel(event) {
+    // Prevent page scrolling
+    event.preventDefault();
+    
+    // Get mouse position relative to canvas
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    
+    // Calculate zoom factor (positive = zoom in, negative = zoom out)
+    const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+    const newZoomLevel = zoomLevel * zoomFactor;
+    
+    // Limit zoom range (0.5x to 5x)
+    if (newZoomLevel >= 0.5 && newZoomLevel <= 5.0) {
+        // Calculate new pan position to zoom toward mouse cursor
+        const worldX = (mouseX - panX) / zoomLevel;
+        const worldY = (mouseY - panY) / zoomLevel;
+        
+        // Update zoom level
+        zoomLevel = newZoomLevel;
+          // Adjust pan to keep mouse position centered
+        panX = mouseX - worldX * zoomLevel;
+        panY = mouseY - worldY * zoomLevel;
+        
+        // Redraw the map
+        drawMap();
+        
+        // Update zoom level display
+        updateZoomDisplay();
+    }
+}
+
+function handleMouseDown(event) {
+    // Start dragging mode
+    isDragging = true;
+    lastMouseX = event.clientX;
+    lastMouseY = event.clientY;
+    canvas.style.cursor = 'grabbing';
+}
+
+function handleMouseMove(event) {
+    if (isDragging) {
+        // Calculate mouse movement
+        const deltaX = event.clientX - lastMouseX;
+        const deltaY = event.clientY - lastMouseY;
+        
+        // Update pan position
+        panX += deltaX;
+        panY += deltaY;
+        
+        // Update last mouse position
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+        
+        // Redraw the map
+        drawMap();
+    }
+}
+
+function handleMouseUp(event) {
+    // Stop dragging mode
+    isDragging = false;
+    canvas.style.cursor = 'crosshair';
 }
 
 function findRegionAtCoordinates(gridX, gridY) {
@@ -347,6 +446,14 @@ function findRegionAtCoordinates(gridX, gridY) {
     return null; // No region found
 }
 
+function updateZoomDisplay() {
+    // Update the zoom level display in the UI
+    const zoomDisplay = document.getElementById('zoomLevel');
+    if (zoomDisplay) {
+        zoomDisplay.textContent = `Zoom: ${Math.round(zoomLevel * 100)}%`;
+    }
+}
+
 function updateRegionInfo(region, gridX, gridY) {
     const infoDiv = document.getElementById('regionInfo');
     
@@ -367,7 +474,11 @@ function updateRegionInfo(region, gridX, gridY) {
 // Control functions
 function resetMap() {
     selectedRegion = null;
+    // Reset zoom and pan to default values
+    zoomLevel = 1.0;
+    panX = 0;    panY = 0;
     drawMap();
+    updateZoomDisplay();
     document.getElementById('regionInfo').innerHTML = 
         'Click on the map to explore regions and place animals';
 }
@@ -379,19 +490,77 @@ function toggleGrid() {
 
 function toggleBackgroundMap() {
     // Toggle between showing background map and ocean gradient
-    if (mapImageLoaded) {
+    if (backgroundMapImage) {
         mapImageLoaded = !mapImageLoaded;
         drawMap();
     }
 }
 
+function zoomIn() {
+    // Zoom in toward center of canvas
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    const zoomFactor = 1.2;
+    const newZoomLevel = zoomLevel * zoomFactor;
+    
+    if (newZoomLevel <= 5.0) {
+        // Calculate world coordinates at center
+        const worldX = (centerX - panX) / zoomLevel;
+        const worldY = (centerY - panY) / zoomLevel;
+        
+        // Update zoom level
+        zoomLevel = newZoomLevel;
+          // Adjust pan to keep center point centered
+        panX = centerX - worldX * zoomLevel;
+        panY = centerY - worldY * zoomLevel;
+        
+        drawMap();
+        updateZoomDisplay();
+    }
+}
+
+function zoomOut() {
+    // Zoom out from center of canvas
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    const zoomFactor = 0.8;
+    const newZoomLevel = zoomLevel * zoomFactor;
+    
+    if (newZoomLevel >= 0.5) {
+        // Calculate world coordinates at center
+        const worldX = (centerX - panX) / zoomLevel;
+        const worldY = (centerY - panY) / zoomLevel;
+        
+        // Update zoom level
+        zoomLevel = newZoomLevel;
+          // Adjust pan to keep center point centered
+        panX = centerX - worldX * zoomLevel;
+        panY = centerY - worldY * zoomLevel;
+        
+        drawMap();
+        updateZoomDisplay();
+    }
+}
+
+function centerMap() {
+    // Center the map in the canvas
+    panX = (canvas.width - (canvas.width * zoomLevel)) / 2;
+    panY = (canvas.height - (canvas.height * zoomLevel)) / 2;
+    drawMap();
+}
+
 function showAllRegions() {
     // Highlight all regions briefly
+    ctx.save();
+    ctx.translate(panX, panY);
+    ctx.scale(zoomLevel, zoomLevel);
     ctx.globalAlpha = 0.7;
     drawWorldRegions();
+    ctx.restore();
     
     setTimeout(() => {
-        ctx.globalAlpha = 1.0;
         drawMap();
     }, 2000);
 }
