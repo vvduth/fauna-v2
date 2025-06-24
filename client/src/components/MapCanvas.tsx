@@ -9,8 +9,10 @@ const MapCanvas: React.FC = () => {
         zoomLevel,
         panX,
         panY,
+        cursorStyle,
         isDragging,
         mapConfig,
+        selectedCells,
         drawMap,
         loadBackgroundMap,
         setCanvasSize,
@@ -117,6 +119,21 @@ const MapCanvas: React.FC = () => {
         }
     }, [zoomLevel, panX, panY, drawMap, mapConfig, mapImageLoaded, gridVisible, showMapBoundary]);
 
+    // Handle cursor style changes reactively
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            canvas.style.cursor = cursorStyle;
+        }
+    }, [cursorStyle]);
+
+    // Show region creation info in console when mode changes
+    useEffect(() => {
+        if (isCreatingRegion) {
+            console.log(`Region creation mode: ${selectedCells.length} cells selected`);
+        }
+    }, [isCreatingRegion, selectedCells.length]);
+
     // Handle map click events
     const handleMapClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
         // Don't handle clicks if we're dragging
@@ -140,6 +157,7 @@ const MapCanvas: React.FC = () => {
         // Handle region creation mode
         if (isCreatingRegion) {
             handleCellSelection(gridX, gridY);
+            console.log(`Cell ${gridX + 1}, ${gridY + 1} ${selectedCells.some(cell => cell.x === gridX && cell.y === gridY) ? 'deselected' : 'selected'}`);
         }
         
         console.log(`Clicked at grid (${gridX + 1}, ${gridY + 1})`);
