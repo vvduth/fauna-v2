@@ -89,24 +89,29 @@
         <div class="map-container">
             <canvas id="gameMap"></canvas>
         </div>          <div class="controls">
-            <h3>Game Controls</h3>
-            
-            <div class="control-row">
+            <h3>Game Controls</h3>            <div class="control-row">
                 <button onclick="resetMap()">Reset Map</button>
                 <button onclick="toggleGrid()">Toggle Grid</button>
                 <button onclick="toggleBackgroundMap()">Toggle Background Map</button>
+                <button onclick="toggleSubRegions()">Toggle Sub-Regions</button>
+                <button onclick="toggleMapBoundary()">Toggle Map Boundary</button>
                 <button onclick="showAllRegions()">Show All Regions</button>
             </div>
-            
-            <div class="control-row">
+              <div class="control-row">
                 <button onclick="zoomIn()">Zoom In (+)</button>
                 <button onclick="zoomOut()">Zoom Out (-)</button>
                 <button onclick="centerMap()">Center Map</button>
             </div>
-              <div class="zoom-info">
+            
+            <div class="control-row">
+                <button onclick="startRegionCreation()">Create New Region</button>
+                <button onclick="loadRegionsFromFile()">Load Regions</button>
+                <button onclick="saveRegionsToFile()">Save All Regions</button>
+                <button onclick="clearAllCustomRegions()">Clear Custom Regions</button>
+            </div><div class="zoom-info">
                 Use mouse wheel to zoom. Click and drag to pan the map.
                 <br>
-                <span id="zoomLevel">Zoom: 100%</span>
+                <span id="zoomLevel">Zoom: 100%</span> | Grid: 74x50 (High Resolution)
             </div>
             
             <div class="region-info" id="regionInfo">
