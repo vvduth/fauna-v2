@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fauna Board Game - Web Version</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+          .map-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
+        }
+        
+        #gameMap {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        
+        .map-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+        
+        .region-info {
+            padding: 10px;
+            background: #e9ecef;
+            margin-top: 10px;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Fauna - Web Board Game</h1>
+        
+        <div class="map-container">
+            <canvas id="gameMap"></canvas>
+        </div>
+          <div class="controls">
+            <h3>Game Controls</h3>
+            <button onclick="resetMap()">Reset Map</button>
+            <button onclick="toggleGrid()">Toggle Grid</button>
+            <button onclick="toggleBackgroundMap()">Toggle Background Map</button>
+            <button onclick="showAllRegions()">Show All Regions</button>
+            
+            <div class="region-info" id="regionInfo">
+                Click on the map to explore regions and place animals
+            </div>
+        </div>
+    </div>
+
+    <script src="fauna-map.js"></script>
+</body>
+</html>
