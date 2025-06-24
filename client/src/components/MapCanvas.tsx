@@ -37,9 +37,8 @@ const MapCanvas: React.FC = () => {
                     const container = canvas.parentElement;
                     if (container) {
                         canvas.width = container.clientWidth;
-                        canvas.height = 600; // Fixed height as per original
+                        canvas.height = container.clientHeight;
                         setCanvasSize(canvas.width, canvas.height);
-                        console.log(`Canvas resized to: ${canvas.width}x${canvas.height}`);
                     }
                 };
                 
@@ -57,13 +56,62 @@ const MapCanvas: React.FC = () => {
         }
     }, [setCanvasSize, setCanvas, loadBackgroundMap]);
 
+    // Add wheel event listener with passive: false AFTER canvas is initialized
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const handleWheel = (event: WheelEvent) => {
+            // Prevent the default scroll behavior
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Get the latest state directly from the store
+            const currentState = useMapStore.getState();
+            const { zoomLevel: currentZoom, panX: currentPanX, panY: currentPanY } = currentState;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            
+            // Calculate zoom factor based on wheel direction
+            const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+            const newZoomLevel = currentZoom * zoomFactor;
+            
+            // Limit zoom range between 0.5x and 5x
+            if (newZoomLevel >= 0.5 && newZoomLevel <= 5.0) {
+                // Calculate world coordinates before zoom
+                const worldX = (mouseX - currentPanX) / currentZoom;
+                const worldY = (mouseY - currentPanY) / currentZoom;
+                
+                // Calculate new pan position to zoom toward mouse cursor
+                const newPanX = mouseX - worldX * newZoomLevel;
+                const newPanY = mouseY - worldY * newZoomLevel;
+                
+                // Update the store with new zoom and pan values
+                useMapStore.setState({
+                    zoomLevel: newZoomLevel,
+                    panX: newPanX,
+                    panY: newPanY,
+                });
+            }
+        };
+
+        // Add event listener with explicit passive: false to allow preventDefault
+        canvas.addEventListener('wheel', handleWheel, { passive: false });
+
+        // Cleanup function to remove event listener
+        return () => {
+            canvas.removeEventListener('wheel', handleWheel);
+        };
+    }, []); // Empty dependency array - this effect runs once after mount
+
     // Redraw map when state changes
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
-                console.log('Drawing map with zoom:', zoomLevel, 'pan:', panX, panY);
                 drawMap(ctx, zoomLevel, panX, panY);
             }
         }
@@ -71,6 +119,7 @@ const MapCanvas: React.FC = () => {
 
     // Handle map click events
     const handleMapClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        // Don't handle clicks if we're dragging
         if (isDragging) return;
         
         const canvas = canvasRef.current;
@@ -96,43 +145,12 @@ const MapCanvas: React.FC = () => {
         console.log(`Clicked at grid (${gridX + 1}, ${gridY + 1})`);
     };
 
-    // Handle mouse wheel for zooming
-    const handleWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-        event.preventDefault();
-        
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-        
-        // Calculate zoom factor
-        const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-        const newZoomLevel = zoomLevel * zoomFactor;
-        
-        // Limit zoom range
-        if (newZoomLevel >= 0.5 && newZoomLevel <= 5.0) {
-            // Calculate new pan position to zoom toward mouse cursor
-            const worldX = (mouseX - panX) / zoomLevel;
-            const worldY = (mouseY - panY) / zoomLevel;
-            
-            // Update zoom and pan through store
-            useMapStore.setState({
-                zoomLevel: newZoomLevel,
-                panX: mouseX - worldX * newZoomLevel,
-                panY: mouseY - worldY * newZoomLevel,
-            });
-        }
-    };
-
     return (
         <div className="absolute inset-0 bg-gradient-to-b from-sky-300 to-blue-600">
             <canvas
                 ref={canvasRef}
                 className="w-full h-full cursor-crosshair"
                 onClick={handleMapClick}
-                onWheel={handleWheel}
                 onMouseDown={(e) => handleMouseDown(e.nativeEvent)}
                 onMouseMove={(e) => handleMouseMove(e.nativeEvent)}
                 onMouseUp={(e) => handleMouseUp(e.nativeEvent)}
