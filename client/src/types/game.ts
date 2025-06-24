@@ -71,6 +71,7 @@ export interface MapState {
     drawMap: (ctx: CanvasRenderingContext2D, zoom: number, panX: number, panY: number) => void;
     drawGrid: (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, mapConfig: MapConfig) => void;
     drawMapBoundary: (ctx: CanvasRenderingContext2D, mapConfig: MapConfig) => void;
+    drawSelectedCells: (ctx: CanvasRenderingContext2D) => void; 
 
     // Control actions
     resetMap: () => void;

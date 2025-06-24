@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { MAP_CONFIG } from '../constants/mapConfig';
 import type { CustomRegion, MapConfig, MapState } from '../types/game';
+import { getGridLetter } from '../utils/mapUtils';
 
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -65,10 +66,95 @@ export const useMapStore = create<MapState>((set, get) => ({
         
         backgroundMapImage.src = '/map-eng.png';
     },
+
+    // Add function to draw selected cells with highlighting and connections
+    drawSelectedCells: (ctx: CanvasRenderingContext2D) => {
+        const { selectedCells, currentRegionColor, mapConfig } = get();
+        
+        // Exit early if no cells are selected
+        if (selectedCells.length === 0) return;
+        
+        // Save the current canvas state
+        ctx.save();
+        
+        // Set styles for cell highlighting
+        ctx.fillStyle = currentRegionColor;
+        ctx.globalAlpha = 0.7;
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        
+        // Draw each selected cell with highlight and label
+        selectedCells.forEach(cell => {
+            const x = cell.x * mapConfig.cellWidth;
+            const y = cell.y * mapConfig.cellHeight;
+            const width = mapConfig.cellWidth;
+            const height = mapConfig.cellHeight;
+            
+            // Fill the cell with highlight color
+            ctx.fillRect(x, y, width, height);
+            
+            // Draw cell border
+            ctx.strokeRect(x, y, width, height);
+            
+            // Draw cell coordinate label (black text, full opacity)
+            ctx.fillStyle = '#000000';
+            ctx.globalAlpha = 1.0;
+            ctx.font = '10px Arial';
+            ctx.fillText(`${cell.x + 1},${getGridLetter(cell.y + 1)}`, x + 2, y + 12);
+            
+            // Reset to highlight color and transparency for next cell
+            ctx.fillStyle = currentRegionColor;
+            ctx.globalAlpha = 0.7;
+        });
+        
+        // Draw connections between adjacent selected cells
+        ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = '#FF6600'; // Orange connection lines
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]); // Dashed lines
+        
+        // Find and draw connections between adjacent cells
+        selectedCells.forEach((cell, index) => {
+            // Check each remaining cell to avoid duplicate connections
+            selectedCells.slice(index + 1).forEach(otherCell => {
+                // Calculate distance between cells
+                const dx = Math.abs(cell.x - otherCell.x);
+                const dy = Math.abs(cell.y - otherCell.y);
+                
+                // Check if cells are adjacent (including diagonals)
+                if (dx <= 1 && dy <= 1 && (dx + dy > 0)) {
+                    // Calculate center points of both cells
+                    const x1 = (cell.x + 0.5) * mapConfig.cellWidth;
+                    const y1 = (cell.y + 0.5) * mapConfig.cellHeight;
+                    const x2 = (otherCell.x + 0.5) * mapConfig.cellWidth;
+                    const y2 = (otherCell.y + 0.5) * mapConfig.cellHeight;
+                    
+                    // Draw connection line between cell centers
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+            });
+        });
+        
+        // Reset line dash and restore canvas state
+        ctx.setLineDash([]);
+        ctx.restore();
+    },
     
+    // Update the main drawMap function to include selected cells
     drawMap: (ctx: CanvasRenderingContext2D, zoom: number, panX: number, panY: number) => {
         const state = get();
-        const { canvas, mapConfig, gridVisible, showMapBoundary, mapImageLoaded, backgroundMapImage } = state;
+        const { 
+            canvas, 
+            mapConfig, 
+            gridVisible, 
+            showMapBoundary, 
+            mapImageLoaded, 
+            backgroundMapImage,
+            isCreatingRegion 
+        } = state;
         
         if (!canvas) return;
         
@@ -82,7 +168,7 @@ export const useMapStore = create<MapState>((set, get) => ({
         ctx.translate(panX, panY);
         ctx.scale(zoom, zoom);
         
-        // Draw background
+        // Draw background (ocean gradient or map image)
         if (mapImageLoaded && backgroundMapImage) {
             ctx.drawImage(backgroundMapImage, 0, 0, canvas.width, canvas.height);
         } else {
@@ -102,6 +188,11 @@ export const useMapStore = create<MapState>((set, get) => ({
         // Draw map boundary if enabled
         if (showMapBoundary) {
             state.drawMapBoundary(ctx, mapConfig);
+        }
+        
+        // Draw selected cells if in region creation mode
+        if (isCreatingRegion) {
+            state.drawSelectedCells(ctx);
         }
         
         // Restore context state
@@ -245,10 +336,10 @@ export const useMapStore = create<MapState>((set, get) => ({
         const { selectedCells, mapConfig } = get();
         
         // Check if cell is within map boundaries
-        if (gridX < mapConfig.mapLeft || gridX > mapConfig.mapRight ||
-            gridY < mapConfig.mapTop || gridY > mapConfig.mapBottom) {
-            return;
-        }
+        // if (gridX < mapConfig.mapLeft || gridX > mapConfig.mapRight ||
+        //     gridY < mapConfig.mapTop || gridY > mapConfig.mapBottom) {
+        //     return;
+        // }
         
         // Check if cell is already selected
         const cellIndex = selectedCells.findIndex(cell => cell.x === gridX && cell.y === gridY);
@@ -262,6 +353,10 @@ export const useMapStore = create<MapState>((set, get) => ({
             set({ selectedCells: [...selectedCells, { x: gridX, y: gridY }] });
         }
     },
+
+    
+
+    
     
     // Mouse handling (placeholder implementations)
     handleMapClick: (event: MouseEvent) => {

@@ -117,7 +117,9 @@ const MapCanvas: React.FC = () => {
                 drawMap(ctx, zoomLevel, panX, panY);
             }
         }
-    }, [zoomLevel, panX, panY, drawMap, mapConfig, mapImageLoaded, gridVisible, showMapBoundary]);
+    }, [zoomLevel, panX, panY, drawMap, mapConfig, mapImageLoaded, gridVisible, showMapBoundary,selectedCells,
+        isCreatingRegion, 
+    ]);
 
     // Handle cursor style changes reactively
     useEffect(() => {

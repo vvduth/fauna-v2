@@ -126,7 +126,15 @@ const Controls: React.FC = () => {
         74x50 (High Resolution)
       </div>
       <div className="region-info p-2 bg-gray-200 rounded mt-2 min-h-[50px]">
-        Click on the map to explore regions and place animals
+         {isCreatingRegion ? (
+          <div>
+            <strong>Creating Region:</strong> {selectedCells.length} cells selected
+            <br />
+            <small>Click cells to select/deselect them. Selected cells will be highlighted with connections shown.</small>
+          </div>
+        ) : (
+          'Click on the map to explore regions and place animals'
+        )}
       </div>
     </div>
   );
