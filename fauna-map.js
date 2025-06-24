@@ -26,13 +26,13 @@ let lastMouseY = 0;           // Last mouse Y position for drag calculation
 // Full grid is 74x50, but actual world map occupies only the central rectangle
 // Remaining areas are used for scoring boards and game mechanics
 const MAP_CONFIG = {
-    gridWidth: 74,  // Horizontal grid count (1-74) - full board width
-    gridHeight: 50, // Vertical grid count (A-AX) - full board height
+    gridWidth: 74 * 2,  // Horizontal grid count (1-74) - full board width
+    gridHeight: 50 * 2, // Vertical grid count (A-AX) - full board height
     cellWidth: 0,   // Calculated based on canvas size
     cellHeight: 0,  // Calculated based on canvas size
     // Actual world map boundaries:
     mapLeft: 6,     // Left boundary of world map (column 6)
-    mapRight: 69,   // Right boundary of world map (column 69)
+    mapRight: 150,   // Right boundary of world map (column 69)
     mapTop: 5,      // Top boundary of world map (row E = 5)
     mapBottom: 35   // Bottom boundary of world map (row AI = 35)
 };
@@ -49,30 +49,7 @@ const SUB_REGIONS = {
 
 // Ocean regions within the actual map boundaries (6,E) to (69,AI)
 const OCEAN_REGIONS = {
-    'Pacific Ocean': {
-        zones: [
-            {x: 6, y: 5, width: 6, height: 30},     // Left Pacific within map
-            {x: 63, y: 5, width: 6, height: 30}     // Right Pacific within map
-        ],
-        color: '#4682B4',
-        label: 'Pacific Ocean'
-    },
     
-    'Atlantic Ocean': {
-        zones: [
-            {x: 22, y: 5, width: 8, height: 30}     // Atlantic Ocean within map
-        ],
-        color: '#4169E1',
-        label: 'Atlantic Ocean'
-    },
-    
-    'Indian Ocean': {
-        zones: [
-            {x: 44, y: 23, width: 14, height: 12}   // Indian Ocean within map bounds
-        ],
-        color: '#6495ED',
-        label: 'Indian Ocean'
-    }
 };
 
 // Initialize the game when page loads
@@ -336,7 +313,25 @@ function drawCoordinateGrid() {
 }
 
 function getGridLetter(index) {
-    // Convert index to grid letter (A-Z, then AA-AX for extended range)
+    // For high-resolution grids, use different labeling systems based on grid size
+    
+    // Option 1: Use numbers for y-axis when grid is large (recommended for 100+ rows)
+    if (MAP_CONFIG.gridHeight > 50) {
+        return index.toString(); // Simple numeric labels: 1, 2, 3, etc.
+    }
+    
+    // Option 2: Use hybrid system - numbers with letter prefix for grouping
+    // Uncomment this block if you prefer grouped numeric labels
+    /*
+    if (MAP_CONFIG.gridHeight > 50) {
+        const group = Math.floor((index - 1) / 10); // Groups of 10
+        const subIndex = ((index - 1) % 10) + 1;
+        const groupLetter = String.fromCharCode(65 + group); // A, B, C, etc.
+        return `${groupLetter}${subIndex}`; // A1, A2, ..., A10, B1, B2, etc.
+    }
+    */
+    
+    // Option 3: Traditional letter system for smaller grids (original behavior)
     if (index <= 26) {
         return String.fromCharCode(64 + index); // A-Z
     } else {
