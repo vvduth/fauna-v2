@@ -1,14 +1,62 @@
-import express from "express";
-import { AREAS } from "./constants/areas";
 
+import { AREAS } from "./constants/areas";
+import express from "express";
+import dotenv from "dotenv";
+import bodyParser from "body-parser";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import animalRoutes from "./routes/animals";
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-})
 
+// Middleware setup
+app.use(express.json());
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+app.use(morgan("common"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
+
+// Root endpoint with API information
+app.get("/", (req, res) => {
+    res.json({
+        message: "Fauna Research Engine API",
+        version: "2.0.0",
+        endpoints: {
+            research: "/api/animals/research",
+            cards: "/api/animals/cards",
+            batch: "/api/animals/research/batch",
+            stats: "/api/animals/stats",
+            areas: "/api/areas"
+        },
+        documentation: "Use POST /api/animals/research with {animalName, scientificName?} to research animals"
+    });
+});
+
+// API routes
+app.use("/api/animals", animalRoutes);
+
+// Get available game areas
+app.get("/api/areas", (req, res) => {
+    res.json({
+        success: true,
+        data: {
+            areas: AREAS,
+            total: AREAS.length
+        }
+    });
+});
+
+// Start server
 app.listen(PORT, () => {
-    console.log(AREAS.length)
-    console.log(`Server is running on PORT ${PORT}`);
-})
+    console.log(`Game areas loaded: ${AREAS.length}`);
+    console.log(`Fauna Research Engine running on PORT ${PORT}`);
+    console.log(`Access the API at: http://localhost:${PORT}`);
+    console.log(`Test with: curl -X POST http://localhost:${PORT}/api/animals/research -H "Content-Type: application/json" -d '{"animalName": "Snow Leopard"}'`);
+});
