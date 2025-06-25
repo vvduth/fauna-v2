@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
 import { useMapStore } from "../hooks/store";
 
-const Controls: React.FC = () => {
-  const {
+const Controls: React.FC = () => {  const {
     zoomLevel,
     isCreatingRegion,
     selectedCells,
+    clickedRegionInfo, // Add clicked region info for display
     resetMap,
     toggleGrid,
     toggleBackgroundMap,
@@ -190,9 +190,7 @@ const Controls: React.FC = () => {
         <br />
         <span id="zoomLevel">Zoom: {Math.round(zoomLevel * 100)}%</span> | Grid:
         74x50 (High Resolution)
-      </div>
-
-      {/* Region creation status display */}
+      </div>      {/* Region creation status display */}
       <div className="region-info p-2 bg-gray-200 rounded mt-2 min-h-[50px]">
         {isCreatingRegion ? (
           <div>
@@ -203,6 +201,12 @@ const Controls: React.FC = () => {
               Click cells to select/deselect them. Selected cells will be
               highlighted with connections shown.
             </small>
+          </div>
+        ) : clickedRegionInfo ? (
+          <div>
+            <strong>Selected Region:</strong>
+            <br />
+            {clickedRegionInfo}
           </div>
         ) : (
           "Click on the map to explore regions and place animals"

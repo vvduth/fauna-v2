@@ -28,7 +28,8 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
             showMapBoundary, 
             mapImageLoaded, 
             backgroundMapImage,
-            isCreatingRegion 
+            isCreatingRegion ,
+            customRegions
         } = state;
         
         if (!canvas) return;
@@ -53,6 +54,13 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
             gradient.addColorStop(1, '#4682B4');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (customRegions && Object.keys(customRegions).length > 0) {
+            // Draw each custom region
+            Object.values(customRegions).forEach(region => {
+                state.drawCustomRegion(ctx, region);
+            });
         }
         
         // Draw grid if visible
@@ -166,10 +174,10 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
         });
         
         // Draw connections between adjacent selected cells
-        ctx.globalAlpha = 1.0;
-        ctx.strokeStyle = '#FF6600'; // Orange connection lines
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 5]); // Dashed lines
+        // ctx.globalAlpha = 1.0;
+        // ctx.strokeStyle = '#FF6600'; // Orange connection lines
+        // ctx.lineWidth = 1;
+        // ctx.setLineDash([5, 5]); // Dashed lines
         
         // Find and draw connections between adjacent cells
         selectedCells.forEach((cell, index) => {
@@ -188,10 +196,10 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
                     const y2 = (otherCell.y + 0.5) * mapConfig.cellHeight;
                     
                     // Draw connection line between cell centers
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.stroke();
+                    // ctx.beginPath();
+                    // ctx.moveTo(x1, y1);
+                    // ctx.lineTo(x2, y2);
+                    // ctx.stroke();
                 }
             });
         });
@@ -210,6 +218,7 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
         
         // Set region color and border style
         ctx.fillStyle = region.color;
+        ctx.globalAlpha = 0.5;
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 2;
         
@@ -238,15 +247,15 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
             const labelY = (centerY + 0.5) * mapConfig.cellHeight;
             
             // Draw label background (semi-transparent white rectangle)
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fillRect(labelX - 30, labelY - 8, 60, 16);
+            // ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            // ctx.fillRect(labelX - 30, labelY - 8, 60, 16);
             
             // Draw label text (black, bold, centered)
-            ctx.fillStyle = '#000';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(region.name, labelX, labelY + 4);
-            ctx.textAlign = 'left'; // Reset text alignment for other drawings
+            // ctx.fillStyle = '#000';
+            // ctx.font = 'bold 12px Arial';
+            // ctx.textAlign = 'center';
+            // ctx.fillText(region.name, labelX, labelY + 4);
+            // ctx.textAlign = 'left'; // Reset text alignment for other drawings
         }
         
         // Restore the canvas state

@@ -19,13 +19,16 @@ const MapCanvas: React.FC = () => {
         setCanvas,
         handleMouseDown,
         handleMouseMove,
-        handleMouseUp,
-        handleCellSelection,
+        handleMouseUp,        handleCellSelection,
+        handleRegionClick, // Add region click handler
+        loadRegionsFromFile,
         isCreatingRegion,
         // Add state that affects rendering
         mapImageLoaded,
         gridVisible,
-        showMapBoundary
+        showMapBoundary,
+        customRegions,
+        drawCustomRegion
     } = useMapStore();
 
     // Initialize canvas when component mounts
@@ -47,6 +50,15 @@ const MapCanvas: React.FC = () => {
                 resizeCanvas();
                 setCanvas(canvas, ctx);
                 loadBackgroundMap();
+                
+                // Load regions from JSON file
+                fetch('../../regions.json')
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'regions.json', { type: 'application/json' });
+                        loadRegionsFromFile(file);
+                    })
+                    .catch(error => console.error('Failed to load regions:', error));
                 
                 // Add resize listener
                 window.addEventListener('resize', resizeCanvas);
@@ -119,7 +131,7 @@ const MapCanvas: React.FC = () => {
             }
         }
     }, [zoomLevel, panX, panY, drawMap, mapConfig, mapImageLoaded, gridVisible, showMapBoundary,selectedCells,
-        isCreatingRegion, 
+        isCreatingRegion, customRegions, drawCustomRegion
     ]);
 
     // Handle cursor style changes reactively
@@ -135,9 +147,7 @@ const MapCanvas: React.FC = () => {
         if (isCreatingRegion) {
             console.log(`Region creation mode: ${selectedCells.length} cells selected`);
         }
-    }, [isCreatingRegion, selectedCells.length]);
-
-    // Handle map click events
+    }, [isCreatingRegion, selectedCells.length]);    // Handle map click events
     const handleMapClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
         // Don't handle clicks if we're dragging
         if (isDragging) return;
@@ -157,13 +167,19 @@ const MapCanvas: React.FC = () => {
         const gridX = Math.floor(worldX / mapConfig.cellWidth);
         const gridY = Math.floor(worldY / mapConfig.cellHeight);
         
-        // Handle region creation mode
+        // Handle region creation mode first
         if (isCreatingRegion) {
             handleCellSelection(gridX, gridY);
             console.log(`Cell ${gridX + 1}, ${gridY + 1} ${selectedCells.some(cell => cell.x === gridX && cell.y === gridY) ? 'deselected' : 'selected'}`);
+        } else {
+            // Handle region detection when not in creation mode
+            const clickedRegion = handleRegionClick(gridX, gridY);
+            if (clickedRegion) {
+                console.log(`Clicked on region "${clickedRegion.name}" at grid (${gridX + 1}, ${gridY + 1})`);
+            } else {
+                console.log(`Clicked at grid (${gridX + 1}, ${gridY + 1}) - no region found`);
+            }
         }
-        
-        console.log(`Clicked at grid (${gridX + 1}, ${gridY + 1})`);
     };
 
     return (

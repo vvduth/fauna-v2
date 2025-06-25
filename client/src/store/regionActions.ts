@@ -2,6 +2,7 @@
 import type { MapState } from "../types/store";
 import type { CustomRegion } from "../types/game";
 import { MAP_CONFIG } from "../constants/mapConfig";
+import { hexCodeRandom } from "../utils/color";
 
 // Create region management actions for the store
 export const createRegionActions = (set: any, get: () => MapState) => ({
@@ -33,7 +34,7 @@ export const createRegionActions = (set: any, get: () => MapState) => ({
     // Create new region object
     const newRegion: CustomRegion = {
       name,
-      color: currentRegionColor,
+      color: hexCodeRandom(),
       cells: [...selectedCells],
       cellCount: selectedCells.length,
       components: 1,
@@ -169,6 +170,49 @@ export const createRegionActions = (set: any, get: () => MapState) => ({
       }
     };
     reader.readAsText(file);
+  },
+  
+  // Handle region click detection - find which region contains the clicked cell
+  handleRegionClick: (gridX: number, gridY: number) => {
+    const { customRegions } = get();
+    
+    // Search through all custom regions to find which one contains this cell
+    for (const [regionName, region] of Object.entries(customRegions)) {
+      // Check if the clicked cell is within this region
+      const cellInRegion = region.cells.find(
+        cell => cell.x === gridX && cell.y === gridY
+      );
+      
+      if (cellInRegion) {
+        // Found the region containing this cell
+        const regionInfo = `Region: "${region.name}" | Cells: ${region.cellCount} | Created: ${new Date(region.created).toLocaleDateString()}`;
+        
+        // Update the clicked region info for display
+        set({ 
+          clickedRegionInfo: regionInfo,
+          selectedRegion: region 
+        });
+        
+        // Show alert with region information
+        //alert(`Region Information:\n\nName: ${region.name}\nCells: ${region.cellCount}\nColor: ${region.color}\nCreated: ${new Date(region.created).toLocaleString()}`);
+        
+        console.log(`Clicked on region "${region.name}":`, region);
+        return region;
+      }
+    }
+    
+    // No region found at this location
+    set({ 
+      clickedRegionInfo: '',
+      selectedRegion: null 
+    });
+    
+    return null;
+  },
+  
+  // Set the clicked region information for display
+  setClickedRegionInfo: (info: string) => {
+    set({ clickedRegionInfo: info });
   },
   
 });

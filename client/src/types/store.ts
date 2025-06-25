@@ -40,6 +40,10 @@ export interface MapState {
     // Currently selected region
     selectedRegion: any;
     
+    // Add region interaction state
+    hoveredRegion: CustomRegion | null;
+    clickedRegionInfo: string;
+    
     // Canvas management actions
     setCanvasSize: (width: number, height: number) => void;
     setCanvas: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void;
@@ -51,6 +55,7 @@ export interface MapState {
     drawMapBoundary: (ctx: CanvasRenderingContext2D, mapConfig: MapConfig) => void;
     drawSelectedCells: (ctx: CanvasRenderingContext2D) => void;
     drawCustomRegion: (ctx: CanvasRenderingContext2D, region: CustomRegion) => void;
+    
     
     // Control actions for map interaction
     resetMap: () => void;
@@ -69,6 +74,10 @@ export interface MapState {
     handleCellSelection: (gridX: number, gridY: number) => void;
     saveRegionsToFile: () => void;
     loadRegionsFromFile: (file: File) => void;
+    
+    // Region interaction actions
+    handleRegionClick: (gridX: number, gridY: number) => CustomRegion | null;
+    setClickedRegionInfo: (info: string) => void;
     
     // Mouse event handling
     handleMapClick: (event: MouseEvent) => void;

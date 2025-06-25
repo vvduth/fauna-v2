@@ -531,11 +531,11 @@ function handleMouseDown(event) {
 
 function handleCellSelection(gridX, gridY) {
     // Check if cell is within map boundaries
-    if (gridX < MAP_CONFIG.mapLeft || gridX > MAP_CONFIG.mapRight ||
-        gridY < MAP_CONFIG.mapTop || gridY > MAP_CONFIG.mapBottom) {
-        alert('Cell is outside the world map area!');
-        return;
-    }
+    // if (gridX < MAP_CONFIG.mapLeft || gridX > MAP_CONFIG.mapRight ||
+    //     gridY < MAP_CONFIG.mapTop || gridY > MAP_CONFIG.mapBottom) {
+    //     alert('Cell is outside the world map area!');
+    //     return;
+    // }
     
     // Create cell identifier
     const cellId = `${gridX},${gridY}`;

@@ -38,7 +38,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     // Region creation state (default values)
     isCreatingRegion: false,
     selectedCells: [],
-    currentRegionColor: '#90EE90',
+    currentRegionColor: '#87CEEB',
     
     // Regions data storage (empty by default)
     worldRegions: {},
@@ -48,6 +48,10 @@ export const useMapStore = create<MapState>((set, get) => ({
     
     // Currently selected region
     selectedRegion: null,
+    
+    // Region interaction state (default values)
+    hoveredRegion: null,
+    clickedRegionInfo: '',
     
     // Combine all action modules using spread syntax
     ...createCanvasActions(set, get),
