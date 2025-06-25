@@ -23,7 +23,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     // Visual state toggles (default values)
     gridVisible: true,
     showSubRegions: false,
-    showMapBoundary: true,
+    showMapBoundary: false,
     mapImageLoaded: false,
     backgroundMapImage: null,
     

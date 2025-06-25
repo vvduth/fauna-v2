@@ -115,6 +115,7 @@ const MapCanvas: React.FC = () => {
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 drawMap(ctx, zoomLevel, panX, panY);
+                
             }
         }
     }, [zoomLevel, panX, panY, drawMap, mapConfig, mapImageLoaded, gridVisible, showMapBoundary,selectedCells,

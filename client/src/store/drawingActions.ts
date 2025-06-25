@@ -1,4 +1,6 @@
 // Drawing functions for canvas rendering
+import { MAP_CONFIG } from '../constants/mapConfig';
+import type { CustomRegion } from '../types/game';
 import type { MapState } from '../types/store';
 import { getGridLetter } from '../utils/mapUtils';
 
@@ -196,6 +198,58 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
         
         // Reset line dash and restore canvas state
         ctx.setLineDash([]);
+        ctx.restore();
+    },
+
+    // Function to draw a single custom region with cells and label
+    drawCustomRegion: (ctx: CanvasRenderingContext2D, region: CustomRegion) => {
+        const { mapConfig } = get();
+        
+        // Save the current canvas state
+        ctx.save();
+        
+        // Set region color and border style
+        ctx.fillStyle = region.color;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        
+        // Draw each cell in the custom region
+        region.cells.forEach(cell => {
+            const x = cell.x * mapConfig.cellWidth;
+            const y = cell.y * mapConfig.cellHeight;
+            const width = mapConfig.cellWidth;
+            const height = mapConfig.cellHeight;
+            
+            // Fill the cell with region color
+            ctx.fillRect(x, y, width, height);
+            
+            // Draw cell border (black outline)
+            ctx.strokeRect(x, y, width, height);
+        });
+        
+        // Draw region label at the center of all cells
+        if (region.cells.length > 0) {
+            // Calculate the geometric center of all cells
+            const centerX = region.cells.reduce((sum, cell) => sum + cell.x, 0) / region.cells.length;
+            const centerY = region.cells.reduce((sum, cell) => sum + cell.y, 0) / region.cells.length;
+            
+            // Convert to screen coordinates
+            const labelX = (centerX + 0.5) * mapConfig.cellWidth;
+            const labelY = (centerY + 0.5) * mapConfig.cellHeight;
+            
+            // Draw label background (semi-transparent white rectangle)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(labelX - 30, labelY - 8, 60, 16);
+            
+            // Draw label text (black, bold, centered)
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(region.name, labelX, labelY + 4);
+            ctx.textAlign = 'left'; // Reset text alignment for other drawings
+        }
+        
+        // Restore the canvas state
         ctx.restore();
     },
 });

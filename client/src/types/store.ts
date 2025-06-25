@@ -50,6 +50,7 @@ export interface MapState {
     drawGrid: (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, mapConfig: MapConfig) => void;
     drawMapBoundary: (ctx: CanvasRenderingContext2D, mapConfig: MapConfig) => void;
     drawSelectedCells: (ctx: CanvasRenderingContext2D) => void;
+    drawCustomRegion: (ctx: CanvasRenderingContext2D, region: CustomRegion) => void;
     
     // Control actions for map interaction
     resetMap: () => void;
@@ -66,6 +67,8 @@ export interface MapState {
     cancelRegionCreation: () => void;
     finishRegionCreation: (name: string) => void;
     handleCellSelection: (gridX: number, gridY: number) => void;
+    saveRegionsToFile: () => void;
+    loadRegionsFromFile: (file: File) => void;
     
     // Mouse event handling
     handleMapClick: (event: MouseEvent) => void;
