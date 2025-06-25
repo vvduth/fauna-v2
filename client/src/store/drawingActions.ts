@@ -58,9 +58,9 @@ export const createDrawingActions = (set: any, get: () => MapState) => ({
 
         if (customRegions && Object.keys(customRegions).length > 0) {
             // Draw each custom region
-            Object.values(customRegions).forEach(region => {
-                state.drawCustomRegion(ctx, region);
-            });
+            // Object.values(customRegions).forEach(region => {
+            //     state.drawCustomRegion(ctx, region);
+            // });
         }
         
         // Draw grid if visible
