@@ -38,8 +38,7 @@ Requirements:
 function constructHabitatQuestion(animalName: string, scientificName: string, gameAreas: string[]): string {
     let questions = ''
     gameAreas.forEach(area => {
-        questions += `- Can the ${animalName} (${scientificName}) naturally be found 
-        in ${area} based on its real-world habitat?\n`;
+        questions += `- Can the ${animalName} (${scientificName}) naturally be found in ${area} based on its real-world habitat?\n`;
     });
     return questions;
 
