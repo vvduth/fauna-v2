@@ -15,7 +15,7 @@ export class DatabaseConfig {
       port: parseInt(process.env.DB_PORT || '5432'),
       database: process.env.DB_NAME || 'fauna_db',
       user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'password',
+      password: process.env.DB_PASSWORD || 'admin', // Default password, should be overridden by env variable
       max: 20, // Maximum number of connections in pool
       idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
       connectionTimeoutMillis: 2000, // Return error after 2 seconds if unable to connect

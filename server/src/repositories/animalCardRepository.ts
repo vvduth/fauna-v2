@@ -235,6 +235,26 @@ export class AnimalCardRepository {
   }
 
   /**
+   * Get a random animal card
+   * @returns Promise<AnimalCard | null>
+   */
+
+  async getRandomAnimalCard(): Promise<AnimalCard | null> {
+    try {
+      const result = await this.pool.query('SELECT * FROM animal_cards ORDER BY RANDOM() LIMIT 1');
+      
+      if (result.rows.length === 0) {
+        return null;
+      }
+
+      return await this.buildCompleteAnimalCard(result.rows[0]);
+    } catch (error) {
+      console.error('Error getting random animal card:', error);
+      throw new Error(`Failed to get random animal card: ${error}`);
+    }
+  }
+
+  /**
    * Build complete animal card with all related data
    */
   private async buildCompleteAnimalCard(cardRow: any): Promise<AnimalCard> {

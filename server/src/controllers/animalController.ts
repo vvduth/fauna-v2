@@ -237,6 +237,40 @@ export class AnimalController {
   }
 
   /**
+   * Get a random animal card
+   * GET /api/animals/cards/random
+  */
+ async getRandomCard(req: Request, res: Response): Promise<void> {
+    try {
+      const randomCard = await animalRepository.getRandomAnimalCard();
+
+      if (!randomCard) {
+        res.status(404).json({
+          success: false,
+          error: 'No animal cards available'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: {
+          card: randomCard
+        }
+      });
+
+    } catch (error) {
+      console.error('Error in getRandomCard controller:', error);
+      
+      res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve random animal card',
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+    }
+ }
+
+  /**
    * Get cards by difficulty level
    * GET /api/animals/cards/difficulty/:level
    */

@@ -24,6 +24,10 @@ router.get('/cards/:id', (req, res) => {
     animalController.getCardById(req, res);
 });
 
+router.get('/cards/random', (req, res) => {
+    animalController.getRandomCard(req, res);
+})
+
 // Get cards by difficulty level
 router.get('/cards/difficulty/:level', (req, res) => {
     animalController.getCardsByDifficulty(req, res);
