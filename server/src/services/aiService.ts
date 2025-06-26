@@ -76,9 +76,8 @@ export class AiService {
       const openai = this.getOpenAIClient();
       
       const prompt = HABITAT_RESEARCH_PROMPT(animalName, scientificName, gameAreas);
-      
-      const response = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: ANIMAL_SYSTEM_PROMPT },
           { role: "user", content: prompt }
@@ -107,9 +106,8 @@ export class AiService {
       const openai = this.getOpenAIClient();
       
       const prompt = MEASUREMENTS_RESEARCH_PROMPT(animalName, scientificName);
-      
-      const response = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: ANIMAL_SYSTEM_PROMPT },
           { role: "user", content: prompt }
@@ -139,9 +137,8 @@ export class AiService {
       const openai = this.getOpenAIClient();
       
       const prompt = CLASSIFICATION_RESEARCH_PROMPT(animalName, scientificName);
-      
-      const response = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: ANIMAL_SYSTEM_PROMPT },
           { role: "user", content: prompt }
@@ -171,9 +168,8 @@ export class AiService {
       const openai = this.getOpenAIClient();
       
       const prompt = BASIC_INFO_RESEARCH_PROMPT(animalName, scientificName);
-      
-      const response = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: ANIMAL_SYSTEM_PROMPT },
           { role: "user", content: prompt }

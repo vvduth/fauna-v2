@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { AnimalResearchService } from '../services/animalResearchService';
+import { AnimalCardRepository } from '../repositories/animalCardRepository';
 import { AnimalCard } from '../types/animal';
 
-// In-memory storage for demonstration (replace with database in production)
-let animalCards: AnimalCard[] = [];
+// Database repository for persistent storage
+const animalRepository = new AnimalCardRepository();
 
 /**
  * Controller handling all animal-related HTTP requests
@@ -34,16 +35,17 @@ export class AnimalController {
         return;
       }
 
-      console.log(`Research request received for: ${animalName}`);
-
-      // Research the animal using the service
+      console.log(`Research request received for: ${animalName}`);      // Research the animal using the service
       const animalCard = await this.researchService.researchCompleteAnimalData(
         animalName, 
         scientificName
       );
 
-      // Store the researched card
-      animalCards.push(animalCard);
+      // Save the researched card to database
+      await animalRepository.saveAnimalCard(animalCard);
+
+      // Get updated total count from database
+      const stats = await animalRepository.getStats();
 
       // Return success response with created card
       res.status(201).json({
@@ -51,7 +53,7 @@ export class AnimalController {
         message: `Successfully researched ${animalName}`,
         data: {
           animalCard: animalCard,
-          totalCards: animalCards.length
+          totalCards: stats.totalCards
         }
       });
 
@@ -65,33 +67,39 @@ export class AnimalController {
       });
     }
   }
-
   /**
    * Get all animal cards with optional filtering
    * GET /api/animals/cards
    */
   async getAllCards(req: Request, res: Response): Promise<void> {
     try {
-      const { cardType, difficulty, animalClass } = req.query;
+      const { cardType, difficulty, animalClass, limit, offset } = req.query;
 
-      let filteredCards = animalCards;
-
-      // Apply cardType filter (simple or exotic)
+      // Build filters object
+      const filters: any = {};
+      
       if (cardType && (cardType === 'simple' || cardType === 'exotic')) {
-        filteredCards = filteredCards.filter(card => card.cardType === cardType);
+        filters.cardType = cardType as string;
       }
 
-      // Apply difficulty filter (beginner, intermediate, expert)
       if (difficulty && ['beginner', 'intermediate', 'expert'].includes(difficulty as string)) {
-        filteredCards = filteredCards.filter(card => card.difficulty === difficulty);
+        filters.difficulty = difficulty as string;
       }
 
-      // Apply animal class filter
       if (animalClass && typeof animalClass === 'string') {
-        filteredCards = filteredCards.filter(card => 
-          card.animalClass.toLowerCase().includes((animalClass as string).toLowerCase())
-        );
+        filters.animalClass = animalClass;
       }
+
+      if (limit && !isNaN(Number(limit))) {
+        filters.limit = Number(limit);
+      }
+
+      if (offset && !isNaN(Number(offset))) {
+        filters.offset = Number(offset);
+      }
+
+      // Get filtered cards from database
+      const filteredCards = await animalRepository.getAllAnimalCards(filters);
 
       res.json({
         success: true,
@@ -145,13 +153,16 @@ export class AnimalController {
         }
       }
 
-      console.log(`Batch research request for ${animals.length} animals`);
-
-      // Research all animals using the service
+      console.log(`Batch research request for ${animals.length} animals`);      // Research all animals using the service
       const { results, errors } = await this.researchService.researchMultipleAnimals(animals);
 
-      // Store successful results
-      animalCards.push(...results);
+      // Save successful results to database
+      for (const animalCard of results) {
+        await animalRepository.saveAnimalCard(animalCard);
+      }
+
+      // Get updated total count from database
+      const stats = await animalRepository.getStats();
 
       // Return comprehensive response
       res.status(201).json({
@@ -166,7 +177,7 @@ export class AnimalController {
             failed: errors.length,
             successRate: `${((results.length / animals.length) * 100).toFixed(1)}%`
           },
-          totalCardsInDatabase: animalCards.length
+          totalCardsInDatabase: stats.totalCards
         }
       });
 
@@ -180,7 +191,6 @@ export class AnimalController {
       });
     }
   }
-
   /**
    * Get specific animal card by ID
    * GET /api/animals/cards/:id
@@ -197,7 +207,7 @@ export class AnimalController {
         return;
       }
 
-      const card = animalCards.find(card => card.id === id);
+      const card = await animalRepository.getAnimalCardById(id);
 
       if (!card) {
         res.status(404).json({
@@ -243,7 +253,7 @@ export class AnimalController {
         return;
       }
 
-      const filteredCards = animalCards.filter(card => card.difficulty === level);
+      const filteredCards = await animalRepository.getAllAnimalCards({ difficulty: level });
 
       res.json({
         success: true,
@@ -282,7 +292,7 @@ export class AnimalController {
         return;
       }
 
-      const filteredCards = animalCards.filter(card => card.cardType === cardType);
+      const filteredCards = await animalRepository.getAllAnimalCards({ cardType });
 
       res.json({
         success: true,
@@ -310,22 +320,7 @@ export class AnimalController {
    */
   async getStats(req: Request, res: Response): Promise<void> {
     try {
-      const stats = {
-        totalCards: animalCards.length,
-        cardTypes: {
-          simple: animalCards.filter(card => card.cardType === 'simple').length,
-          exotic: animalCards.filter(card => card.cardType === 'exotic').length
-        },
-        difficulties: {
-          beginner: animalCards.filter(card => card.difficulty === 'beginner').length,
-          intermediate: animalCards.filter(card => card.difficulty === 'intermediate').length,
-          expert: animalCards.filter(card => card.difficulty === 'expert').length
-        },
-        animalClasses: this.getAnimalClassStats(),
-        averageAreasPerCard: animalCards.length > 0 
-          ? (animalCards.reduce((sum, card) => sum + card.numberOfAreas, 0) / animalCards.length).toFixed(1)
-          : '0'
-      };
+      const stats = await animalRepository.getStats();
 
       res.json({
         success: true,
@@ -344,21 +339,6 @@ export class AnimalController {
         details: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  }
-
-  /**
-   * Helper method to get animal class statistics
-   * Groups cards by animal class and counts them
-   */
-  private getAnimalClassStats(): Record<string, number> {
-    const classStats: Record<string, number> = {};
-    
-    animalCards.forEach(card => {
-      const animalClass = card.animalClass || 'Unknown';
-      classStats[animalClass] = (classStats[animalClass] || 0) + 1;
-    });
-
-    return classStats;
   }
 }
 

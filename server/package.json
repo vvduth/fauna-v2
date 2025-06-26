@@ -16,6 +16,7 @@
     "@google/genai": "^1.6.0",
     "@langchain/community": "^0.3.47",
     "@langchain/core": "^0.3.61",
+    "@types/pg": "^8.15.4",
     "axios": "^1.10.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
@@ -23,6 +24,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "morgan": "^1.10.0",
+    "pg": "^8.16.2",
     "prisma": "^6.10.1",
     "uuid": "^11.1.0"
   },

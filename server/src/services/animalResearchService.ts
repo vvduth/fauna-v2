@@ -25,8 +25,7 @@ export class AnimalResearchService {
     try {
       // Use provided scientific name or empty string for AI to determine
       const scientificNameToUse = scientificName || "";
-      
-      // Run research tasks in parallel for efficiency
+        // Run research tasks in parallel for efficiency
       const [basicInfo, habitatData, measurements, classification] = await Promise.all([
         this.aiService.researchBasicInfo(animalName, scientificNameToUse),
         this.aiService.researchHabitat(animalName, scientificNameToUse, AREAS),
