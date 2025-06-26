@@ -5,19 +5,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TooltipProvider } from "./components/UI/tooltip";
 import { Toaster } from "./components/UI/sonner";
+import Index from "./pages/Index";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<MapCanvas />} />
-      
-    </Routes>
-  </BrowserRouter>        
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+          </Routes>
+        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
