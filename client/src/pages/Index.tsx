@@ -5,6 +5,10 @@ import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
 import { Separator } from "@/components/UI/separator";
 const Index = () => {
+
+    const handleStartGame = () => {
+        
+    }
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8">
       <div className="max-w-2xl mx-auto">
@@ -52,6 +56,9 @@ const Index = () => {
                 )}
                   <Button onClick={() => {}} className="bg-green-600 hover:bg-green-700">
                     Start Game
+                  </Button>
+                  <Button asChild >
+                    <a href="/game" className="text-white">Go to Game Area</a>
                   </Button>
               </div>
             </div>

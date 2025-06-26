@@ -181,12 +181,12 @@ const MapCanvas: React.FC = () => {
             }
         }
     };
-
+    //className="absolute inset-0 bg-gradient-to-b from-sky-300 to-blue-600"
     return (
-        <div className="absolute inset-0 bg-gradient-to-b from-sky-300 to-blue-600">
+        <div className='bg-blue-50 rounded-lg border-2 border-blue-200 h-full min-h-[700px] flex flex-col' >
             <canvas
                 ref={canvasRef}
-                className="w-full h-full cursor-crosshair"
+                className="w-full flex-1 cursor-crosshair rounded-md"
                 onClick={handleMapClick}
                 onMouseDown={(e) => handleMouseDown(e.nativeEvent)}
                 onMouseMove={(e) => handleMouseMove(e.nativeEvent)}
