@@ -1,4 +1,5 @@
 
+import AnimalCard from "@/components/AnimalCard";
 import MapCanvas from "@/components/MapCanvas";
 import React from "react";
 
@@ -18,6 +19,7 @@ const GameArea = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="space-y-4">
                 {/* animalcard */}
+                <AnimalCard />
                 {/* player panel */}
                 {/* game control */}
             </div>
