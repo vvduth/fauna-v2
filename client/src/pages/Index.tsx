@@ -5,12 +5,13 @@ import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
 import { Separator } from "@/components/UI/separator";
 import { useGameLogic } from "@/hooks/useGameLogic";
-import type { SCALE_RANGES } from "@/constants/worldRegions";
-import AnimalCard from "@/components/AnimalCard";
+import { SCALE_RANGES } from "@/constants/worldRegions";
 import MapCanvas from "@/components/MapCanvas";
 import GameArea from "@/components/GameArea";
 import PlayerPanel from "@/components/PlayerPanel";
 import GameControls from "@/components/GameControls";
+import ScaleSelector from "@/components/ScaleSelector";
+import CollapsibleAnimalCard from "@/components/AnimalCard";
 const Index = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [playerNames, setPlayerNames] = useState(["Player 1", "Player 2"]);
@@ -76,36 +77,30 @@ const Index = () => {
 
   if (!gameStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8 animate-fade-in">
         <div className="max-w-2xl mx-auto">
-          <Card className="shadow-xl">
+          <Card className="shadow-xl transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
             <CardHeader className="text-center">
-              <CardTitle className="text-4xl font-bold text-green-800 mb-2">
-                Fauna
-              </CardTitle>
-              <p className="text-lg text-gray-600">
-                The Animal Knowledge Board Game
-              </p>
+              <CardTitle className="text-4xl font-bold text-green-800 mb-2 animate-fade-in">Fauna</CardTitle>
+              <p className="text-lg text-gray-600 animate-fade-in">The Animal Knowledge Board Game</p>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <h3 className="text-xl font-semibold mb-4">Players (2-6)</h3>
                 <div className="space-y-3">
                   {playerNames.map((name, index) => (
-                    <div key={index} className="flex gap-2">
+                    <div key={index} className="flex gap-2 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                       <Input
                         value={name}
-                        onChange={(e) =>
-                          handlePlayerNameChange(index, e.target.value)
-                        }
+                        onChange={(e) => handlePlayerNameChange(index, e.target.value)}
                         placeholder={`Player ${index + 1}`}
-                        className="flex-1"
+                        className="flex-1 transition-all duration-300 focus:scale-105"
                       />
                       {playerNames.length > 2 && (
-                        <Button
-                          variant="outline"
+                        <Button 
+                          variant="outline" 
                           onClick={() => removePlayer(index)}
-                          className="px-3"
+                          className="px-3 transition-all duration-300 hover:scale-110"
                         >
                           ✕
                         </Button>
@@ -113,16 +108,20 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-
+                
                 <div className="flex gap-2 mt-4">
                   {playerNames.length < 6 && (
-                    <Button variant="outline" onClick={addPlayer}>
+                    <Button 
+                      variant="outline" 
+                      onClick={addPlayer}
+                      className="transition-all duration-300 hover:scale-105"
+                    >
                       Add Player
                     </Button>
                   )}
-                  <Button
-                    onClick={handleStartGame}
-                    className="bg-green-600 hover:bg-green-700"
+                  <Button 
+                    onClick={handleStartGame} 
+                    className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   >
                     Start Game
                   </Button>
@@ -131,15 +130,11 @@ const Index = () => {
 
               <Separator />
 
-              <div className="text-sm text-gray-600 space-y-2">
+              <div className="text-sm text-gray-600 space-y-2 animate-fade-in">
                 <h4 className="font-semibold">How to Play:</h4>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>
-                    Each round, guess where an animal lives and its measurements
-                  </li>
-                  <li>
-                    Place guess pieces on the world map or measurement scales
-                  </li>
+                  <li>Each round, guess where an animal lives and its measurements</li>
+                  <li>Place guess pieces on the world map or measurement scales</li>
                   <li>Score points for correct and adjacent guesses</li>
                   <li>First to reach the victory threshold wins!</li>
                 </ul>
@@ -153,31 +148,25 @@ const Index = () => {
 
   if (gameState.gameEnded && gameState.winner) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8 flex items-center justify-center">
-        <Card className="shadow-xl max-w-lg">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8 flex items-center justify-center animate-fade-in">
+        <Card className="shadow-xl max-w-lg transform transition-all duration-500 hover:shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-green-800">
-              Game Over!
-            </CardTitle>
+            <CardTitle className="text-3xl font-bold text-green-800 animate-bounce">Game Over!</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <div>
               <h3 className="text-xl font-semibold mb-2">
-                {gameState.winner.length === 1 ? "Winner:" : "Winners:"}
+                {gameState.winner.length === 1 ? 'Winner:' : 'Winners:'}
               </h3>
-              {gameState.winner.map((winner) => (
-                <div
-                  key={winner.id}
-                  className="text-lg font-bold"
-                  style={{ color: winner.color }}
-                >
+              {gameState.winner.map((winner, index) => (
+                <div key={winner.id} className="text-lg font-bold animate-fade-in" style={{ color: winner.color, animationDelay: `${index * 200}ms` }}>
                   {winner.name} - {winner.score} points
                 </div>
               ))}
             </div>
-            <Button
-              onClick={handleNewGame}
-              className="bg-green-600 hover:bg-green-700"
+            <Button 
+              onClick={handleNewGame} 
+              className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105"
             >
               New Game
             </Button>
@@ -188,33 +177,39 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-4 animate-fade-in">
+      <div className="max-w-[1800px] mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-green-800 mb-2">
-            Fauna - Round 1
-          </h1>
+        <div className="text-center animate-fade-in">
+          <h1 className="text-3xl font-bold text-green-800 mb-2">Fauna - Round {gameState.round}</h1>
           <p className="text-gray-600">
-            Phase: <span className="font-semibold capitalize">1</span>
+            Phase: <span className="font-semibold capitalize">{gameState.phase}</span>
           </p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="space-y-4">
-            {/* animalcard */}
+
+        {/* Top Row - Animal Card and Player Panel */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1">
             {gameState.currentAnimal && (
-              <AnimalCard
+              <CollapsibleAnimalCard 
                 animal={gameState.currentAnimal}
                 showLowerHalf={gameState.showCardLowerHalf}
+                className="animate-fade-in"
               />
             )}
-             <PlayerPanel 
+          </div>
+          
+          <div className="lg:col-span-2">
+            <PlayerPanel 
               players={gameState.players}
               currentPlayer={gameState.currentPlayer}
               startingPlayer={gameState.startingPlayer}
+              className="animate-fade-in"
             />
-            {/* game control */}
-             <GameControls
+          </div>
+
+          <div className="lg:col-span-1">
+            <GameControls
               phase={gameState.phase}
               onPass={passPlacement}
               onEvaluate={evaluateRound}
@@ -223,23 +218,36 @@ const Index = () => {
               showCardLowerHalf={gameState.showCardLowerHalf}
               onToggleCardHalf={toggleCardHalf}
               canPass={true}
+              className="animate-fade-in"
             />
           </div>
-          <div className="col-span-3">
-            <MapCanvas />
-          </div>
+        </div>
 
-          {/* Right Column - Scales */}
-          <div className="space-y-4 ">
-            <h3 className="text-xl font-bold text-center text-gray-800">
-              Measurement Scales
-            </h3>
-            {/* scale */}
+        {/* Main Game Area - World Map */}
+        <div className="animate-fade-in">
+          <MapCanvas />
+        </div>
+
+        {/* Bottom Row - Measurement Scales */}
+        <div className="animate-fade-in">
+          <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">Measurement Scales</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {Object.keys(SCALE_RANGES).map((scaleType, index) => (
+              <ScaleSelector
+                key={scaleType}
+                scaleType={scaleType as keyof typeof SCALE_RANGES}
+                placements={gameState.placements}
+                onScaleClick={handleScaleClick}
+                isRelevant={getRelevantScales().includes(scaleType as keyof typeof SCALE_RANGES)}
+                className="animate-fade-in"
+                //style={{ animationDelay: `${index * 100}ms` }}
+              />
+            ))}
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 };
 
 export default Index;

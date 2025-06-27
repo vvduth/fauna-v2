@@ -126,6 +126,40 @@ export class AnimalController {
   }
 
   /**
+   * Get all animal card IDs and scientific names
+   * GET /api/animals/cards/ids
+   */
+  async getAllCardIds(req: Request, res: Response): Promise<void> {
+    try {
+      const cards = await animalRepository.getAllAnimalCardIds();
+      if (!cards || cards.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: 'No animal cards found in the database'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: {
+          cards: cards,
+          total: cards.length
+        }
+      });
+    } catch (error) {
+      console.error('Error in getAllCardIds controller:', error);
+      
+      res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve animal card IDs',
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+      return;
+    }
+  }
+
+  /**
    * Research multiple animals in batch
    * POST /api/animals/research/batch
    */
@@ -270,6 +304,8 @@ export class AnimalController {
     }
  }
 
+  
+
   /**
    * Get cards by difficulty level
    * GET /api/animals/cards/difficulty/:level
@@ -370,6 +406,51 @@ export class AnimalController {
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve statistics',
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+    }
+  }
+
+  async updateImageUrl(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { imageUrl } = req.body;
+
+      // Validate input
+      if (!id || !imageUrl || typeof imageUrl !== 'string') {
+        res.status(400).json({
+          success: false,
+          error: 'ID and image URL are required'
+        });
+        return;
+      }
+
+      // Update the image URL in the database
+      const updatedCard = await animalRepository.updateImageUrl(id, imageUrl);
+
+      if (!updatedCard) {
+        res.status(404).json({
+          success: false,
+          error: 'Animal card not found',
+          details: `No card found with ID: ${id}`
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Image URL updated successfully',
+        data: {
+          card: updatedCard
+        }
+      });
+
+    } catch (error) {
+      console.error('Error in updateImageUrl controller:', error);
+      
+      res.status(500).json({
+        success: false,
+        error: 'Failed to update image URL',
         details: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }

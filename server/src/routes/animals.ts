@@ -14,6 +14,16 @@ router.get('/cards', (req, res) => {
     animalController.getAllCards(req, res);
 });
 
+// get id and scienfific name of all animals in the database
+router.get('/cards/all', (req, res) => {
+    animalController.getAllCardIds(req, res);
+});
+
+// update image url of a specific animal card with id
+router.put('/cards/:id/image', (req, res) => {
+    animalController.updateImageUrl(req, res);
+});
+
 // Research multiple animals in batch
 router.post('/research/batch', (req, res) => {
     animalController.researchBatch(req, res);
@@ -24,7 +34,7 @@ router.get('/cards/:id', (req, res) => {
     animalController.getCardById(req, res);
 });
 
-router.get('/cards/random', (req, res) => {
+router.get('/random/card', (req, res) => {
     animalController.getRandomCard(req, res);
 })
 

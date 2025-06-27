@@ -1,4 +1,4 @@
-import { ALL_ANIMALS } from './src/constants/animals';
+import { ALL_ANIMALS } from './constants/animals';
 
 // Use native fetch (available in Node.js 18+)
 // If you're using Node.js < 18, you'll need to install node-fetch
@@ -117,6 +117,147 @@ async function seedAllAnimalCards(): Promise<void> {
     }
 }
 
+
+/**
+ * Seed image URLs for all animal cards using Serper API
+ * Fetches illustration images and updates the database
+ */
+async function seedAnimalImageUrls(): Promise<void> {
+    console.log('🖼️ Starting animal image seeding process...');
+    
+    // Configuration for image processing
+    const API_BASE_URL = 'http://localhost:5000';
+    const SERPER_API_KEY = 'fee361226d07b0b99d25fcb4294130dee7bca355';
+    const DELAY_BETWEEN_REQUESTS = 1000; // 1 second delay to respect rate limits
+    
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: Array<{id: string, scientificName: string, error: string}> = [];
+    
+    try {
+        // Fetch all animal cards from the server
+        console.log('🔎 Fetching all animal cards from the server...');
+        const response = await fetch(`${API_BASE_URL}/api/animals/cards/all`);
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success || !data.data.cards) {
+            throw new Error('Failed to get valid animal cards data');
+        }
+        
+        const animalCards = data.data.cards;
+        console.log(`✅ Fetched ${animalCards.length} animal cards`);
+        console.log('📊 Starting image URL updates...');
+        
+        // Process each animal card
+        for (let i = 0; i < animalCards.length; i++) {
+            const card = animalCards[i];
+            const cardIndex = i + 1;
+            
+            try {
+                console.log(`\n🔍 [${cardIndex}/${animalCards.length}] Searching image for: ${card.scientificName}`);
+                console.log(`   📋 Card ID: ${card.id}`);
+                
+                // Prepare search query for illustration
+                const searchQuery = `${card.scientificName} illustration`;
+                console.log(`   🔎 Search query: "${searchQuery}"`);
+                
+                // Make request to Serper API for image search
+                const serperResponse = await fetch('https://google.serper.dev/images', {
+                    method: 'POST',
+                    headers: {
+                        'X-API-KEY': SERPER_API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        q: searchQuery
+                    })
+                });
+                
+                if (!serperResponse.ok) {
+                    throw new Error(`Serper API responded with status ${serperResponse.status}`);
+                }
+                
+                const imageResults = await serperResponse.json();
+                console.log(`   📸 Found ${imageResults.images?.length || 0} images`);
+                
+                // Check if we have any image results
+                if (!imageResults.images || imageResults.images.length === 0) {
+                    throw new Error('No images found for this animal');
+                }
+                
+                // Get the first image URL
+                const firstImageUrl = imageResults.images[0].imageUrl;
+                console.log(`   🖼️  Selected image URL: ${firstImageUrl}`);
+                
+                // Update the animal card with the image URL
+                const updateResponse = await fetch(`${API_BASE_URL}/api/animals/cards/${card.id}/image`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageUrl: firstImageUrl
+                    })
+                });
+                
+                if (!updateResponse.ok) {
+                    const errorData = await updateResponse.json();
+                    throw new Error(errorData.error || 'Failed to update image URL');
+                }
+                
+                const updateResult = await updateResponse.json();
+                
+                if (updateResult.success) {
+                    successCount++;
+                    console.log(`   ✅ Successfully updated image URL for ${card.scientificName}`);
+                } else {
+                    throw new Error(updateResult.error || 'Update failed');
+                }
+                
+            } catch (error) {
+                errorCount++;
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                errors.push({
+                    id: card.id,
+                    scientificName: card.scientificName,
+                    error: errorMessage
+                });
+                console.log(`   ❌ Failed to update image for ${card.scientificName}: ${errorMessage}`);
+            }
+            
+            // Rate limiting delay (except for the last request)
+            if (i < animalCards.length - 1) {
+                console.log(`   ⏳ Waiting ${DELAY_BETWEEN_REQUESTS / 1000} second before next request...`);
+                await delay(DELAY_BETWEEN_REQUESTS);
+            }
+        }
+        
+        // Final summary
+        console.log('\n🏁 Animal image seeding process completed!');
+        console.log(`📊 Final Results:`);
+        console.log(`   ✅ Successfully updated images: ${successCount} animals`);
+        console.log(`   ❌ Failed to update images: ${errorCount} animals`);
+        console.log(`   📈 Success rate: ${((successCount / animalCards.length) * 100).toFixed(1)}%`);
+        
+        if (errors.length > 0) {
+            console.log('\n❌ Failed to update images for:');
+            errors.forEach((error, index) => {
+                console.log(`   ${index + 1}. ${error.scientificName} (ID: ${error.id}): ${error.error}`);
+            });
+        }
+        
+    } catch (error) {
+        console.error('❌ Fatal error during image seeding process:', error);
+        throw error;
+    }
+}
+
+
 /**
  * Utility function to add delays
  * @param ms - Milliseconds to wait
@@ -147,7 +288,8 @@ async function main() {
         }
         
         // Start the seeding process
-        await seedAllAnimalCards();
+        //await seedAllAnimalCards();
+        await seedAnimalImageUrls()
         
         console.log('\n🎉 All done! Your animal cards are ready for the game.');
         console.log('📅 Completed at:', new Date().toISOString());

@@ -254,6 +254,42 @@ export class AnimalCardRepository {
     }
   }
 
+  async updateImageUrl(id: string, imageUrl: string): Promise<boolean> {
+    try {
+      const result = await this.pool.query(
+        'UPDATE animal_cards SET image_url = $1 WHERE id = $2 RETURNING id',
+        [imageUrl, id]
+      );
+
+      if (result.rowCount === 0) {
+        return false; // No rows updated, card not found
+      }
+
+      console.log(`✅ Updated image URL for card ID: ${id}`);
+      return true;
+    } catch (error) {
+      console.error('Error updating image URL:', error);
+      throw new Error(`Failed to update image URL: ${error}`);
+    }
+  }
+
+  /**
+   * Get all animal card IDs and scientific names
+   * @returns Promise<{ id: string, scientificName: string }[]>
+   */
+  async getAllAnimalCardIds(): Promise<{ id: string, scientificName: string }[]> {
+    try {
+      const result = await this.pool.query('SELECT id, scientific_name FROM animal_cards');
+      return result.rows.map(row => ({
+        id: row.id,
+        scientificName: row.scientific_name
+      }));
+    } catch (error) {
+      console.error('Error getting all animal card IDs:', error);
+      throw new Error(`Failed to get animal card IDs: ${error}`);
+    }
+  }
+
   /**
    * Build complete animal card with all related data
    */
