@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { type Animal } from "@/types/game";
+import { type Animal, type AnimalMeasurements } from "@/types/game";
 import { Card, CardContent } from "./UI/card";
 import { ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { Button } from "./UI/button";
@@ -16,15 +16,15 @@ const CollapsibleAnimalCard: React.FC<CollapsibleAnimalCardProps> = ({
   className = '' 
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
+  const { weight, length, height, tailLength } = animal.measurements;
 
   const getDifficultyBorderColor = () => {
-    return animal.difficulty === 'simple' ? 'border-green-500' : 'border-gray-800';
+    return animal.difficulty === 'beginner' ? 'border-green-500' : 'border-gray-800';
   };
 
-  const getMeasurementDisplay = (measurement: { min: number; max: number; unit: string } | undefined) => {
-    if (!measurement) return 'N/A';
-    return `${measurement.min}-${measurement.max} ${measurement.unit}`;
-  };
+  
+
+  
 
   if (isMinimized) {
     return (
@@ -78,15 +78,19 @@ const CollapsibleAnimalCard: React.FC<CollapsibleAnimalCardProps> = ({
           </div>
           
           <div className="flex justify-center mb-4">
-            <div className="w-48 h-32 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center border-2 border-green-300 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-              <span className="text-green-700 font-medium">Animal Illustration</span>
+            <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center border-2 border-green-300 transition-all duration-300 hover:scale-105 hover:shadow-lg">
+              <img 
+                src={animal.imageUrl || '/placeholder.png'} 
+                alt={animal.name} 
+                className="w-full h-full object-cover rounded-lg"
+              />
             </div>
           </div>
 
           <div className="text-center mb-4">
             <div className="inline-flex items-center px-3 py-1 bg-blue-100 rounded-full transition-all duration-300 hover:bg-blue-200 hover:scale-105">
               <span className="text-sm font-medium text-blue-800">
-                Found in {animal.naturalAreas.length} areas
+                Found in {animal.habitatAreas.length} areas
               </span>
             </div>
           </div>
@@ -95,21 +99,23 @@ const CollapsibleAnimalCard: React.FC<CollapsibleAnimalCardProps> = ({
             <div className="space-y-2">
               <div className="flex justify-between p-2 rounded transition-all duration-200 hover:bg-amber-100">
                 <span className="text-gray-600">Weight:</span>
-                <span className="font-medium">{getMeasurementDisplay(animal.measurements.weight)}</span>
+                <span className="font-medium">{animal.measurements.weight?.value}</span>
               </div>
               <div className="flex justify-between p-2 rounded transition-all duration-200 hover:bg-amber-100">
                 <span className="text-gray-600">Length:</span>
-                <span className="font-medium">{getMeasurementDisplay(animal.measurements.length)}</span>
+                <span className="font-medium">{animal.measurements.length?.value}</span>
               </div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between p-2 rounded transition-all duration-200 hover:bg-amber-100">
                 <span className="text-gray-600">Height:</span>
-                <span className="font-medium">{getMeasurementDisplay(animal.measurements.height)}</span>
+                <span className="font-medium">
+                  {animal.measurements.height?.value}
+                </span>
               </div>
               <div className="flex justify-between p-2 rounded transition-all duration-200 hover:bg-amber-100">
                 <span className="text-gray-600">Tail Length:</span>
-                <span className="font-medium">{getMeasurementDisplay(animal.measurements.tailLength)}</span>
+                <span className="font-medium">{animal.measurements.tailLength?.value}</span>
               </div>
             </div>
           </div>
@@ -129,7 +135,7 @@ const CollapsibleAnimalCard: React.FC<CollapsibleAnimalCardProps> = ({
             <div className="space-y-2">
               <h4 className="font-semibold text-green-800">Areas where this animal lives:</h4>
               <div className="flex flex-wrap gap-2">
-                {animal.worldMapData.map((area, index) => (
+                {animal.habitatAreas.map((area, index) => (
                   <span 
                     key={index} 
                     className="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full transition-all duration-300 hover:bg-green-300 hover:scale-105 animate-fade-in"

@@ -4,47 +4,150 @@ import { type GameState, type Player,
     type GuessPlacement, 
 } from '@/types/game'
 import {PLAYER_COLORS, VICTORY_POINTS } from '@/constants/worldRegions'
+import { getRandomAnimalCard } from '@/utils/animalUtils';
 
 // Sample animals for testing
 // Sample animals for testing
 const SAMPLE_ANIMALS: Animal[] = [
   {
-    id: '1',
-    name: 'African Elephant',
-    scientificName: 'Loxodonta africana',
-    animalClass: 'Mammal',
-    illustration: '/placeholder-elephant.jpg',
-    difficulty: 'simple',
-    naturalAreas: ['East Africa', 'Southern Africa', 'West Africa'],
-    measurements: {
-      weight: { min: 4000, max: 7000, unit: 'kg' },
-      length: { min: 6, max: 7.5, unit: 'm' },
-      height: { min: 3, max: 4, unit: 'm' },
-      totalLength: { min: 6, max: 7.5, unit: 'm' }
-    },
-    worldMapData: ['East Africa', 'Southern Africa', 'West Africa'],
-    description: 'The largest land animal, known for its intelligence and strong social bonds.'
-  },
-  {
-    id: '2',
-    name: 'Arctic Fox',
-    scientificName: 'Vulpes lagopus',
-    animalClass: 'Mammal',
-    illustration: '/placeholder-fox.jpg',
-    difficulty: 'simple',
-    naturalAreas: ['Alaska', 'Canada', 'Greenland', 'Russia'],
-    measurements: {
-      weight: { min: 3, max: 8, unit: 'kg' },
-      length: { min: 45, max: 65, unit: 'cm' },
-      height: { min: 25, max: 30, unit: 'cm' },
-      tailLength: { min: 25, max: 35, unit: 'cm' }
-    },
-    worldMapData: ['Alaska', 'Canada', 'Greenland', 'Russia'],
-    description: 'Well adapted to cold climates with thick fur and compact body.'
-  }
+            "id": "43d28ee7f64f4afd81fd88cf03f65b9a-1750925087011",
+            "name": "Civet",
+            "scientificName": "Civettictis civetta",
+            "animalClass": "Mammal",
+            "cardType": "simple",
+            "habitatAreas": [
+                "MELANESIA",
+                "GUYANA",
+                "AMAZON BASIN",
+                "BRAZIL",
+                "CONGO BASIN",
+                "SOUTHEAST ASIA"
+            ],
+            "numberOfAreas": 6,
+            "measurements": {
+                "weight": {
+                    "value": 5,
+                    "unit": "kg",
+                    "range": {
+                        "min": 4,
+                        "max": 6
+                    }
+                },
+                "length": {
+                    "value": 60,
+                    "unit": "cm",
+                    "range": {
+                        "min": 50,
+                        "max": 70
+                    }
+                },
+                "totalLength": {
+                    "value": 90,
+                    "unit": "cm",
+                    "range": {
+                        "min": 80,
+                        "max": 100
+                    }
+                },
+                "height": {
+                    "value": 30,
+                    "unit": "cm",
+                    "range": {
+                        "min": 25,
+                        "max": 35
+                    }
+                },
+                "tailLength": {
+                    "value": 30,
+                    "unit": "cm",
+                    "range": {
+                        "min": 25,
+                        "max": 35
+                    }
+                }
+            },
+            "classification": {
+                "kingdom": "Animalia",
+                "phylum": "Chordata",
+                "class": "Mammalia",
+                "order": "Carnivora",
+                "family": "Viverridae",
+                "genus": "Civettictis",
+                "species": "civetta"
+            },
+            "description": "The African civet is a nocturnal mammal with a distinctive coat featuring black and white markings, a long body, and a bushy tail. It is known for its strong scent glands, which produce a musk used in perfume.",
+            "imageUrl": "https://www.meisterdrucke.us/kunstwerke/1260px/William_Smellie_-_African_civet_Civettictis_civetta_-_%28MeisterDrucke-1016178%29.jpg",
+            "conservationStatus": "Least Concern",
+            "difficulty": "beginner"
+        },
+        {
+            "id": "189abf977ea046f0971b2a3f0a79bca2-1750924520710",
+            "name": "Serval",
+            "scientificName": "Leptailurus serval",
+            "animalClass": "Mammal",
+            "cardType": "exotic",
+            "habitatAreas": [],
+            "numberOfAreas": 0,
+            "measurements": {
+                "weight": {
+                    "value": 11,
+                    "unit": "kg",
+                    "range": {
+                        "min": 8,
+                        "max": 15
+                    }
+                },
+                "length": {
+                    "value": 67,
+                    "unit": "cm",
+                    "range": {
+                        "min": 60,
+                        "max": 75
+                    }
+                },
+                "totalLength": {
+                    "value": 90,
+                    "unit": "cm",
+                    "range": {
+                        "min": 80,
+                        "max": 100
+                    }
+                },
+                "height": {
+                    "value": 40,
+                    "unit": "cm",
+                    "range": {
+                        "min": 35,
+                        "max": 45
+                    }
+                },
+                "tailLength": {
+                    "value": 23,
+                    "unit": "cm",
+                    "range": {
+                        "min": 20,
+                        "max": 25
+                    }
+                }
+            },
+            "classification": {
+                "kingdom": "Animalia",
+                "phylum": "Chordata",
+                "class": "Mammalia",
+                "order": "Carnivora",
+                "family": "Felidae",
+                "genus": "Leptailurus",
+                "species": "Leptailurus serval"
+            },
+            "description": "The serval is a medium-sized wild cat characterized by its long legs, large ears, and spotted coat. It has a slender body and is known for its exceptional jumping ability, allowing it to catch birds and rodents.",
+            "imageUrl": "https://media.istockphoto.com/id/499884748/vector/llustrated-portrait-of-serval.jpg?s=612x612&w=0&k=20&c=4mTDiIwSnTnjWkcedv9rcRboUYO9qhOUvkVzjpIk46Y=",
+            "conservationStatus": "Least Concern",
+            "difficulty": "expert"
+        }
+  
 ];
 
-export const useGameLogic = () => {
+export const useGameLogic =  () => {
   const [gameState, setGameState] = useState<GameState>({
     players: [],
     currentPlayer: 0,
@@ -57,7 +160,7 @@ export const useGameLogic = () => {
     gameEnded: false
   });
 
-  const initializeGame = useCallback((playerNames: string[]) => {
+  const initializeGame = useCallback(async (playerNames: string[]) => {
     const players: Player[] = playerNames.map((name, index) => ({
       id: index.toString(),
       name,
@@ -67,7 +170,10 @@ export const useGameLogic = () => {
       stockPieces: 0
     }));
 
-    const randomAnimal = SAMPLE_ANIMALS[Math.floor(Math.random() * SAMPLE_ANIMALS.length)];
+    const randomAnimalRes = await getRandomAnimalCard()
+    console.log('Random Animal Response:', randomAnimalRes);
+    const randomAnimal = randomAnimalRes.card as Animal;
+    
 
     setGameState({
       players,
@@ -145,10 +251,10 @@ export const useGameLogic = () => {
 
         // Calculate area points
         const areaPlacements = playerPlacements.filter(p => p.type === 'area');
-        const correctAreas = prev.currentAnimal!.worldMapData.length;
+        const correctAreas = prev.currentAnimal!.habitatAreas.length;
         
         areaPlacements.forEach(placement => {
-          if (prev.currentAnimal!.worldMapData.includes(placement.location)) {
+          if (prev.currentAnimal!.habitatAreas.includes(placement.location)) {
             // Direct hit scoring based on number of correct areas
             if (correctAreas === 1) points += 12;
             else if (correctAreas === 2) points += 10;

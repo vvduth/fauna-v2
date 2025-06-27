@@ -26,23 +26,67 @@ export interface CustomRegion {
     bounds?: any;
 }
 
+// Animal data structure for the game cards
+export interface AnimalMeasurements {
+  weight?: {
+    value: number;
+    unit: 'kg' | 'g';
+    range?: { min: number; max: number };
+  };
+  length?: {
+    value: number;
+    unit: 'cm' | 'm';
+    range?: { min: number; max: number };
+  };
+  totalLength?: {
+    value: number;
+    unit: 'cm' | 'm';
+    range?: { min: number; max: number };
+  };
+  height?: {
+    value: number;
+    unit: 'cm' | 'm';
+    range?: { min: number; max: number };
+  };
+  tailLength?: {
+    value: number;
+    unit: 'cm' | 'm';
+    range?: { min: number; max: number };
+  };
+}
+
+export interface AnimalClassification {
+  kingdom: string;
+  phylum: string;
+  class: string;
+  order: string;
+  family: string;
+  genus: string;
+  species: string;
+}
+
 export interface Animal {
   id: string;
   name: string;
   scientificName: string;
-  animalClass: string;
-  illustration: string;
-  difficulty: 'simple' | 'exotic'; // green or black margin
-  naturalAreas: string[];
-  measurements: {
-    weight?: { min: number; max: number; unit: string };
-    length?: { min: number; max: number; unit: string };
-    totalLength?: { min: number; max: number; unit: string };
-    height?: { min: number; max: number; unit: string };
-    tailLength?: { min: number; max: number; unit: string };
-  };
-  worldMapData: string[]; // areas where animal lives
+  animalClass: string; // Mammal, Bird, Reptile, etc.
+  cardType: 'simple' | 'exotic'; // green or black card margin
+  
+  // Habitat information
+  habitatAreas: string[]; // Areas from your AREAS constant
+  numberOfAreas: number;
+  
+  // Physical measurements (average values)
+  measurements: AnimalMeasurements;
+  
+  // Zoological classification
+  classification: AnimalClassification;
+  
+  // Additional game data
   description?: string;
+  imageUrl?: string;
+  conservationStatus?: string;
+  difficulty: 'beginner' | 'intermediate' | 'expert';
 }
 
 export interface Player {

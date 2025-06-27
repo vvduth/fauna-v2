@@ -158,12 +158,8 @@ export const createRegionActions = (set: any, get: () => MapState) => ({
           cursorStyle: "crosshair", // Reset cursor style
         });
 
-        alert(
-          `Successfully loaded ${
-            Object.keys(data.regions).length
-          } custom regions`
-        );
-        console.log("Loaded regions:", data.regions);
+        
+        console.log("Regions loaded successfully:");
       } catch (error: any) {
         alert("Error loading regions: " + error.message);
         console.error("Error loading regions:", error);
