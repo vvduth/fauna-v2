@@ -1,7 +1,7 @@
 
 const GameControls = () => {
   return (
-    <div className="lg:col-span-1 animate-fade-in delay-400">
+    <div className="lg:col-span-2 animate-fade-in delay-400">
               <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-6 shadow-2xl border">
                 <div className="text-center mb-4">
                   <h3 className="text-xl font-bold text-emerald-200 flex items-center justify-center gap-2">

@@ -1,6 +1,6 @@
 import type { Animal, GameState, Player } from "@/types/game";
 import { create } from "zustand";
-
+import { SCALE_RANGES } from "@/constants/worldRegions";
 /**
  * Creates the initial game state based on Fauna board game rules
  * Sets up players, starting pieces, and game phase
@@ -125,6 +125,14 @@ export const useGameStore = create<GameState>((set, get) => ({
         currentPlayer: nextPlayerIndex
       };
     });
+  },
+  placeGuess: (type: 'area'| 'scale',
+    location: string, 
+    scaleType?: keyof typeof SCALE_RANGES
+  ) => {
+    if (type === 'area' ) {
+      console.log(`Placing guess in area: ${location}`);
+    }
   },
   // Action to move to evaluation phase
   startEvaluation: () => {

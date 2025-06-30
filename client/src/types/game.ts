@@ -1,3 +1,5 @@
+import type { SCALE_RANGES } from "@/constants/worldRegions";
+
 // Types for the map configuration and regions
 export interface MapConfig {
     gridWidth: number;
@@ -121,6 +123,8 @@ export interface GameState {
   resetGame: (playerCount: number) => void;
   updatePlayerName: (playerId: string, name: string) => void;
   addPlayer: (name: string) => void;
+  placeGuess: (type: 'area' | 'scale', 
+    location: string,  scaleType?: keyof typeof SCALE_RANGES) => void;
   startRound: (animal: Animal) => void;
   nextPlayer: () => void;
   startEvaluation: () => void;

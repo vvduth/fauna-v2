@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useMapStore } from '../hooks/store';
+import { useGameStore } from '@/hooks/gameStore';
 
 const MapCanvas: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -30,6 +31,7 @@ const MapCanvas: React.FC = () => {
         customRegions,
         drawCustomRegion
     } = useMapStore();
+    const {placeGuess} = useGameStore()
 
     // Initialize canvas when component mounts
     useEffect(() => {
@@ -176,6 +178,7 @@ const MapCanvas: React.FC = () => {
             const clickedRegion = handleRegionClick(gridX, gridY);
             if (clickedRegion) {
                 console.log(`Clicked on region "${clickedRegion.name}" at grid (${gridX + 1}, ${gridY + 1})`);
+                placeGuess('area', clickedRegion.name)
             } else {
                 console.log(`Clicked at grid (${gridX + 1}, ${gridY + 1}) - no region found`);
             }

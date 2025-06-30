@@ -13,39 +13,36 @@ import ScaleSelector from "@/components/ScaleSelector";
 
 const GameArea = () => {
   // Get game state from store
-  const { players, phase, round, currentPlayer, currentAnimal,
-    startRound
-   } = useGameStore();
-  
-  useEffect(() => { 
+  const { players, phase, round, currentPlayer, currentAnimal, startRound } =
+    useGameStore();
+
+  useEffect(() => {
     console.log("GameArea mounted with players:", players);
   }, [players]);
 
-  const handleGetAnimal =async () => {
+  const handleGetAnimal = async () => {
     const randomAnimalCard = await getRandomAnimalCard();
     const animalData = randomAnimalCard.card as Animal;
     startRound(animalData);
-    
-  }
-  
+  };
 
   // Get current player info for display
   const activePlayer = players[currentPlayer];
-  
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background Image with Nature Overlay */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
+        style={{
           backgroundImage: "url('/fauna-bg.jpg')",
-          filter: "brightness(0.8) blur(0.5px)"
+          filter: "brightness(0.8) blur(0.5px)",
         }}
       />
-      
+
       {/* Gradient Overlay for Better Content Visibility */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-amber-900/20 to-green-800/40" />
-      
+
       {/* Floating Nature Elements for Ambiance */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-16 left-20 animate-pulse delay-1000">
@@ -61,11 +58,10 @@ const GameArea = () => {
           <span className="text-xl opacity-35">🐝</span>
         </div>
       </div>
-      
+
       {/* Main Content Container */}
       <div className="relative z-10 min-h-screen p-4 animate-fade-in">
         <div className="max-w-[1800px] mx-auto space-y-6">
-          
           {/* Enhanced Header with Nature Theme */}
           <div className="text-center animate-fade-in backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 shadow-2xl">
             <div className="flex items-center justify-center gap-4 mb-3">
@@ -75,34 +71,37 @@ const GameArea = () => {
               </h1>
               <span className="text-4xl animate-bounce delay-500">🌍</span>
             </div>
-            
+
             {/* Game Status Bar */}
             <div className="flex justify-center items-center gap-8 text-emerald-100">
               <div className="flex items-center gap-2">
                 <span className="text-xl">🎯</span>
                 <span className="font-semibold">Round {round}</span>
               </div>
-              
+
               <div className="h-6 w-px bg-emerald-300/50"></div>
-              
+
               <div className="flex items-center gap-2">
                 <span className="text-xl">⚡</span>
                 <span className="font-semibold capitalize">{phase} Phase</span>
               </div>
-              
+
               <div className="h-6 w-px bg-emerald-300/50"></div>
-              
+
               <div className="flex items-center gap-2">
-                <div 
+                <div
                   className="w-4 h-4 rounded-full border-2 border-white animate-pulse"
                   style={{ backgroundColor: activePlayer?.color }}
                 />
-                <span className="font-semibold">{activePlayer?.name}'s Turn</span>
+                <span className="font-semibold">
+                  {activePlayer?.name}'s Turn
+                </span>
               </div>
               <div className="h-6 w-px bg-emerald-300/50"></div>
-              <Button variant={"outline"}
-              className="bg-gradient-to-r from-emerald-600 to-sky-700 text-amber-400"
-              onClick={handleGetAnimal}
+              <Button
+                variant={"outline"}
+                className="bg-gradient-to-r from-emerald-600 to-sky-700 text-amber-400"
+                onClick={handleGetAnimal}
               >
                 <span>Get Animal</span>
               </Button>
@@ -111,31 +110,34 @@ const GameArea = () => {
 
           {/* Top Row - Animal Card, Player Panel, and Game Controls */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            
+            {/* Player Panel Section */}
+            <PlayerPanel />
+
+            {/* Game Control Section */}
+            <GameControls />
+
             {/* Current Animal Card Section */}
-            <div className="lg:col-span-1 animate-fade-in">
-              <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-6 shadow-2xl border">
+            <div className="lg:col-span-2 lg:col-start-2 lg:col-end-4 animate-fade-in">
+              <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-4 shadow-2xl border">
                 <div className="text-center mb-4">
                   <h3 className="text-xl font-bold text-emerald-200 flex items-center justify-center gap-2">
                     <span>🔍</span>
                     Mystery Animal
                   </h3>
                 </div>
-                
+
                 {currentAnimal ? (
                   <>
-                    <CollapsibleAnimalCard 
+                    <CollapsibleAnimalCard
                       animal={currentAnimal}
-                      className="w-full h-auto  overflow-y-auto"
-                      showLowerHalf={false}
+                      className="w-full h-auto overflow-y-auto"
+                      showLowerHalf={true}
                     />
                   </>
                 ) : (
                   <div className="text-center py-8 text-emerald-200/70">
                     <div className="text-6xl mb-4 animate-pulse">🎴</div>
-                    <p className="text-sm">
-                      Waiting for animal card...
-                    </p>
+                    <p className="text-sm">Waiting for animal card...</p>
                     <p className="text-xs mt-2 opacity-70">
                       The expedition begins soon!
                     </p>
@@ -143,12 +145,6 @@ const GameArea = () => {
                 )}
               </div>
             </div>
-          
-            {/* Player Panel Section */}
-            <PlayerPanel/>
-
-            {/* Game Control Section */}
-            <GameControls />
           </div>
 
           {/* Main Game Area - World Map */}
@@ -160,9 +156,12 @@ const GameArea = () => {
                   World Habitat Map
                   <span>🌍</span>
                 </h3>
-                <p className="text-emerald-200/70 mt-2">Place your guess pieces on the regions where you think the animal lives</p>
+                <p className="text-emerald-200/70 mt-2">
+                  Place your guess pieces on the regions where you think the
+                  animal lives
+                </p>
               </div>
-              
+
               {/* Map Container with Enhanced Styling */}
               <div className="bg-black/20 rounded-xl p-4 border border-white/10">
                 <MapCanvas />
@@ -171,10 +170,7 @@ const GameArea = () => {
           </div>
 
           {/* Bottom Row - Measurement Scales */}
-          <ScaleSelector
-            
-          />
-          
+          <ScaleSelector />
         </div>
       </div>
     </div>
