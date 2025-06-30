@@ -5,7 +5,7 @@ import { Input } from "@/components/UI/input";
 import { Separator } from "@/components/UI/separator";
 import { useNavigate } from "react-router-dom";
 import { useGameStore } from "@/hooks/gameStore";
-import { se } from "date-fns/locale";
+
 
 const Index = () => {
   const navigate = useNavigate();

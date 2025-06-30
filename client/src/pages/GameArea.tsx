@@ -3,14 +3,31 @@ import MapCanvas from "@/components/MapCanvas";
 import { useGameLogic } from "@/hooks/useGameLogic";
 import React, { useEffect } from "react";
 import { useGameStore } from "@/hooks/gameStore";
+import { Button } from "@/components/UI/button";
+import { getRandomAnimalCard } from "@/utils/animalUtils";
+import type { Animal } from "@/types/game";
+import CollapsibleAnimalCard from "@/components/AnimalCard";
+import PlayerPanel from "@/components/PlayerPanel";
+import GameControls from "@/components/GameControls";
+import ScaleSelector from "@/components/ScaleSelector";
 
 const GameArea = () => {
   // Get game state from store
-  const { players, phase, round, currentPlayer, currentAnimal } = useGameStore();
+  const { players, phase, round, currentPlayer, currentAnimal,
+    startRound
+   } = useGameStore();
   
   useEffect(() => { 
     console.log("GameArea mounted with players:", players);
   }, [players]);
+
+  const handleGetAnimal =async () => {
+    const randomAnimalCard = await getRandomAnimalCard();
+    const animalData = randomAnimalCard.card as Animal;
+    startRound(animalData);
+    
+  }
+  
 
   // Get current player info for display
   const activePlayer = players[currentPlayer];
@@ -82,6 +99,13 @@ const GameArea = () => {
                 />
                 <span className="font-semibold">{activePlayer?.name}'s Turn</span>
               </div>
+              <div className="h-6 w-px bg-emerald-300/50"></div>
+              <Button variant={"outline"}
+              className="bg-gradient-to-r from-emerald-600 to-sky-700 text-amber-400"
+              onClick={handleGetAnimal}
+              >
+                <span>Get Animal</span>
+              </Button>
             </div>
           </div>
 
@@ -99,7 +123,13 @@ const GameArea = () => {
                 </div>
                 
                 {currentAnimal ? (
-                  <AnimalCard />
+                  <>
+                    <CollapsibleAnimalCard 
+                      animal={currentAnimal}
+                      className="w-full h-auto  overflow-y-auto"
+                      showLowerHalf={false}
+                    />
+                  </>
                 ) : (
                   <div className="text-center py-8 text-emerald-200/70">
                     <div className="text-6xl mb-4 animate-pulse">🎴</div>
@@ -115,99 +145,10 @@ const GameArea = () => {
             </div>
           
             {/* Player Panel Section */}
-            <div className="lg:col-span-2 animate-fade-in delay-200">
-              <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-6 shadow-2xl border">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-emerald-200 flex items-center justify-center gap-2">
-                    <span>👥</span>
-                    Wildlife Explorers
-                  </h3>
-                </div>
-                
-                {/* Players Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {players.map((player, index) => (
-                    <div 
-                      key={player.id}
-                      className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                        index === currentPlayer 
-                          ? 'bg-white/20 border-emerald-300 shadow-lg transform scale-105' 
-                          : 'bg-white/5 border-white/20 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div 
-                          className="w-8 h-8 rounded-full border-2 border-white/50 shadow-lg"
-                          style={{ backgroundColor: player.color }}
-                        />
-                        <div>
-                          <h4 className="font-bold text-white text-lg">{player.name}</h4>
-                          {index === currentPlayer && (
-                            <div className="text-emerald-300 text-sm flex items-center gap-1">
-                              <span>⭐</span>
-                              <span>Active Explorer</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Player Stats */}
-                      <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                        <div className="bg-black/20 rounded-lg p-2">
-                          <div className="text-emerald-300 font-bold text-lg">{player.score}</div>
-                          <div className="text-emerald-200/70">Points</div>
-                        </div>
-                        <div className="bg-black/20 rounded-lg p-2">
-                          <div className="text-amber-300 font-bold text-lg">{player.guessPieces}</div>
-                          <div className="text-amber-200/70">Pieces</div>
-                        </div>
-                        <div className="bg-black/20 rounded-lg p-2">
-                          <div className="text-red-300 font-bold text-lg">{player.stockPieces}</div>
-                          <div className="text-red-200/70">Stock</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <PlayerPanel/>
 
             {/* Game Control Section */}
-            <div className="lg:col-span-1 animate-fade-in delay-400">
-              <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-6 shadow-2xl border">
-                <div className="text-center mb-4">
-                  <h3 className="text-xl font-bold text-emerald-200 flex items-center justify-center gap-2">
-                    <span>🎮</span>
-                    Game Control
-                  </h3>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="space-y-4">
-                  <button className="w-full bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105">
-                    🎴 Draw Animal Card
-                  </button>
-                  
-                  <button className="w-full bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-500 hover:to-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105">
-                    ⚡ Start Evaluation
-                  </button>
-                  
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105">
-                    ⏭️ Next Round
-                  </button>
-                </div>
-                
-                {/* Quick Stats */}
-                <div className="mt-6 p-4 bg-black/20 rounded-xl">
-                  <h4 className="text-emerald-200 font-semibold mb-2 text-center">🏆 Victory Goals</h4>
-                  <div className="text-emerald-100 text-xs space-y-1">
-                    <div>🥇 2-3 Players: 120 points</div>
-                    <div>🥈 4-5 Players: 100 points</div>
-                    <div>🥉 6 Players: 80 points</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <GameControls />
           </div>
 
           {/* Main Game Area - World Map */}
@@ -230,38 +171,9 @@ const GameArea = () => {
           </div>
 
           {/* Bottom Row - Measurement Scales */}
-          <div className="animate-fade-in delay-800">
-            <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-6 shadow-2xl border">
-              <div className="text-center mb-6">
-                <h3 className="text-3xl font-bold text-emerald-200 flex items-center justify-center gap-3">
-                  <span>📏</span>
-                  Measurement Scales
-                  <span>⚖️</span>
-                </h3>
-                <p className="text-emerald-200/70 mt-2">Estimate the animal's physical characteristics</p>
-              </div>
-              
-              {/* Scales Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Placeholder for scale components */}
-                {['Weight', 'Length', 'Height', 'Tail Length'].map((scale, index) => (
-                  <div 
-                    key={scale}
-                    className="bg-black/20 rounded-xl p-4 border border-white/10 hover:bg-white/5 transition-all duration-300 hover:scale-105"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">
-                        {index === 0 ? '⚖️' : index === 1 ? '📏' : index === 2 ? '📐' : '🦘'}
-                      </div>
-                      <h4 className="text-emerald-200 font-semibold mb-2">{scale}</h4>
-                      <div className="text-emerald-200/50 text-sm">Scale component here</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ScaleSelector
+            
+          />
           
         </div>
       </div>
