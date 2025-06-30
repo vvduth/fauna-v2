@@ -117,5 +117,13 @@ export interface GameState {
   showCardLowerHalf: boolean;
   gameEnded: boolean;
   winner?: Player[];
+
+  resetGame: (playerCount: number) => void;
+  updatePlayerName: (playerId: string, name: string) => void;
+  addPlayer: (name: string) => void;
+  startRound: (animal: Animal) => void;
+  nextPlayer: () => void;
+  startEvaluation: () => void;
+  endRound: () => void;
 }
 

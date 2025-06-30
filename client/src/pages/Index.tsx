@@ -1,253 +1,255 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
-import { players_dummy } from "@/placeholder/dummy";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
 import { Separator } from "@/components/UI/separator";
-import { useGameLogic } from "@/hooks/useGameLogic";
-import { SCALE_RANGES } from "@/constants/worldRegions";
-import MapCanvas from "@/components/MapCanvas";
-import GameArea from "@/components/GameArea";
-import PlayerPanel from "@/components/PlayerPanel";
-import GameControls from "@/components/GameControls";
-import ScaleSelector from "@/components/ScaleSelector";
-import CollapsibleAnimalCard from "@/components/AnimalCard";
+import { useNavigate } from "react-router-dom";
+import { useGameStore } from "@/hooks/gameStore";
+import { se } from "date-fns/locale";
+
 const Index = () => {
-  const [gameStarted, setGameStarted] = useState(false);
-  const [playerNames, setPlayerNames] = useState(["Player 1", "Player 2"]);
-  const {
-    gameState,
-    initializeGame,
-    placeGuess,
-    passPlacement,
-    evaluateRound,
-    nextRound,
-    toggleCardHalf,
-  } = useGameLogic();
-
+  const navigate = useNavigate();
+  const { players ,resetGame,updatePlayerName , addPlayer } = useGameStore();
+  
+  
+  // Handle starting the game - navigates to game page
   const handleStartGame = () => {
-    initializeGame(playerNames.filter((name) => name.trim() !== ""));
-    setGameStarted(true);
+    // Initialize game with current player count
+    navigate("/game");
   };
 
+  // Create a new game setup - resets to 2 players
   const handleNewGame = () => {
-    setGameStarted(false);
-    setPlayerNames(["Player 1", "Player 2"]);
+    resetGame(2);
   };
 
+  // Update individual player name in the game store
   const handlePlayerNameChange = (index: number, name: string) => {
-    const newNames = [...playerNames];
-    newNames[index] = name;
-    setPlayerNames(newNames);
+    // Get the actual player ID from the players array
+  const playerId = players[index].id;
+  updatePlayerName(playerId, name);
+  console.log(`Update player ${index} (${playerId}) to ${name}`);
   };
 
-  const addPlayer = () => {
-    if (playerNames.length < 6) {
-      setPlayerNames([...playerNames, `Player ${playerNames.length + 1}`]);
-    }
+  
+
+  // Add a new player to the game (max 6 players)
+  const handleAddPlayer = () => {
+    addPlayer("new adventurer")
   };
 
+  // Remove a player from the game (min 2 players)
   const removePlayer = (index: number) => {
-    if (playerNames.length > 2) {
-      setPlayerNames(playerNames.filter((_, i) => i !== index));
+    if (players.length > 2) {
+      resetGame(players.length - 1);
     }
   };
 
-  const handleAreaClick = (area: string) => {
-    if (gameState.phase === "placement") {
-      placeGuess("area", area);
-    }
-  };
-
-  const handleScaleClick = (
-    scaleType: keyof typeof SCALE_RANGES,
-    position: string
-  ) => {
-    if (gameState.phase === "placement") {
-      placeGuess("scale", position, scaleType);
-    }
-  };
-
-  const getRelevantScales = () => {
-    if (!gameState.currentAnimal) return [];
-    return Object.keys(gameState.currentAnimal.measurements) as Array<
-      keyof typeof SCALE_RANGES
-    >;
-  };
-
-  if (!gameStarted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8 animate-fade-in">
-        <div className="max-w-2xl mx-auto">
-          <Card className="shadow-xl transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
-            <CardHeader className="text-center">
-              <CardTitle className="text-4xl font-bold text-green-800 mb-2 animate-fade-in">Fauna</CardTitle>
-              <p className="text-lg text-gray-600 animate-fade-in">The Animal Knowledge Board Game</p>
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: "url('/fauna-bg.jpg')",
+          filter: "brightness(0.7) blur(1px)"
+        }}
+      />
+      
+      {/* Gradient Overlay for Better Text Readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/40 via-amber-900/30 to-green-800/50" />
+      
+      {/* Animated Nature Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Floating Leaves Animation */}
+        <div className="absolute top-20 left-10 animate-bounce delay-1000">
+          <span className="text-4xl opacity-60">🍃</span>
+        </div>
+        <div className="absolute top-40 right-20 animate-bounce delay-2000">
+          <span className="text-3xl opacity-50">🦋</span>
+        </div>
+        <div className="absolute bottom-32 left-1/4 animate-bounce delay-3000">
+          <span className="text-2xl opacity-40">🌿</span>
+        </div>
+        <div className="absolute top-60 right-1/3 animate-pulse delay-1500">
+          <span className="text-3xl opacity-30">🦅</span>
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-8">
+        <div className="max-w-2xl w-full">
+          {/* Main Game Card with Glassmorphism Effect */}
+          <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl transform transition-all duration-700 hover:shadow-3xl hover:-translate-y-3 hover:bg-white/15">
+            <CardHeader className="text-center pb-6">
+              {/* Game Title with Nature-Inspired Typography */}
+              <div className="mb-4">
+                <CardTitle className="text-6xl font-bold bg-gradient-to-r from-emerald-200 via-green-300 to-amber-200 bg-clip-text text-transparent mb-3 animate-fade-in font-serif tracking-wide">
+                  🦁 Fauna 🐾
+                </CardTitle>
+                <div className="h-1 w-32 bg-gradient-to-r from-emerald-400 to-amber-400 mx-auto rounded-full animate-fade-in opacity-80" />
+              </div>
+              
+              <p className="text-xl text-emerald-100 animate-fade-in font-medium tracking-wide">
+                The Ultimate Animal Knowledge Adventure
+              </p>
+              <p className="text-sm text-emerald-200/80 mt-2 animate-fade-in delay-300">
+                Explore the wild kingdom and test your animal expertise!
+              </p>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Players (2-6)</h3>
-                <div className="space-y-3">
-                  {playerNames.map((name, index) => (
-                    <div key={index} className="flex gap-2 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+            
+            <CardContent className="space-y-8 px-8 pb-8">
+              {/* Player Setup Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-2xl">👥</span>
+                  <h3 className="text-2xl font-bold text-white">
+                    Wildlife Explorers 
+                    <span className="text-emerald-300 ml-2">({players.length}/6)</span>
+                  </h3>
+                </div>
+                
+                {/* Player Input List */}
+                <div className="space-y-4">
+                  {players.map(({ name, color }, index) => (
+                    <div 
+                      key={index} 
+                      className="flex gap-3 animate-fade-in group" 
+                      style={{ animationDelay: `${index * 150}ms` }}
+                    >
+                      {/* Player Color Indicator */}
+                      <div 
+                        className="w-6 h-6 rounded-full border-2 border-white/50 flex-shrink-0 mt-3 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                        style={{ backgroundColor: color }}
+                      />
+                      
+                      {/* Player Name Input */}
                       <Input
                         value={name}
                         onChange={(e) => handlePlayerNameChange(index, e.target.value)}
-                        placeholder={`Player ${index + 1}`}
-                        className="flex-1 transition-all duration-300 focus:scale-105"
+                        placeholder={`Explorer ${index + 1}`}
+                        className="flex-1 bg-white/10 border-white/30 text-white placeholder-emerald-200/60 backdrop-blur-sm 
+                                 focus:bg-white/20 focus:border-emerald-300 focus:scale-105 transition-all duration-300 
+                                 hover:bg-white/15 text-lg font-medium shadow-lg"
                       />
-                      {playerNames.length > 2 && (
+                      
+                      {/* Remove Player Button */}
+                      {players.length > 2 && (
                         <Button 
                           variant="outline" 
                           onClick={() => removePlayer(index)}
-                          className="px-3 transition-all duration-300 hover:scale-110"
+                          className="px-4 bg-red-500/20 border-red-400/50 text-red-200 hover:bg-red-500/30 
+                                   hover:border-red-300 hover:scale-110 transition-all duration-300 shadow-lg"
                         >
-                          ✕
+                          ❌
                         </Button>
                       )}
                     </div>
                   ))}
                 </div>
                 
-                <div className="flex gap-2 mt-4">
-                  {playerNames.length < 6 && (
+                {/* Action Buttons */}
+                <div className="flex gap-4 mt-8 flex-wrap justify-center">
+                  {/* Add Player Button */}
+                  {players.length < 6 && (
                     <Button 
                       variant="outline" 
-                      onClick={addPlayer}
-                      className="transition-all duration-300 hover:scale-105"
+                      onClick={handleAddPlayer}
+                      className="bg-emerald-600/20 border-emerald-400/50 text-emerald-200 hover:bg-emerald-500/30 
+                               hover:border-emerald-300 transition-all duration-300 hover:scale-110 shadow-lg font-medium px-6 py-3"
                     >
-                      Add Player
+                      ➕ Add Explorer
                     </Button>
                   )}
+                  
+                  {/* New Game Button */}
+                  <Button 
+                    variant="outline"
+                    onClick={handleNewGame}
+                    className="bg-amber-600/20 border-amber-400/50 text-amber-200 hover:bg-amber-500/30 
+                             hover:border-amber-300 transition-all duration-300 hover:scale-110 shadow-lg font-medium px-6 py-3"
+                  >
+                    🔄 New Setup
+                  </Button>
+                  
+                  {/* Start Game Button - Primary CTA */}
                   <Button 
                     onClick={handleStartGame} 
-                    className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    className="bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600 
+                             text-white font-bold px-8 py-3 text-lg shadow-xl transform transition-all duration-300 
+                             hover:scale-110 hover:shadow-2xl border-0 tracking-wide"
                   >
-                    Start Game
+                    🎯 Begin Adventure!
                   </Button>
                 </div>
               </div>
 
-              <Separator />
+              {/* Elegant Separator */}
+              <div className="relative my-8">
+                <Separator className="bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+                <div className="absolute inset-0 flex justify-center">
+                  <span className="bg-gradient-to-r from-emerald-900/80 to-green-900/80 px-4 text-emerald-300 text-sm font-medium">
+                    🌍 Game Rules 🌍
+                  </span>
+                </div>
+              </div>
 
-              <div className="text-sm text-gray-600 space-y-2 animate-fade-in">
-                <h4 className="font-semibold">How to Play:</h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Each round, guess where an animal lives and its measurements</li>
-                  <li>Place guess pieces on the world map or measurement scales</li>
-                  <li>Score points for correct and adjacent guesses</li>
-                  <li>First to reach the victory threshold wins!</li>
-                </ul>
+              {/* How to Play Section - Enhanced */}
+              <div className="text-emerald-100 space-y-4 animate-fade-in bg-black/20 p-6 rounded-xl backdrop-blur-sm border border-white/10">
+                <h4 className="font-bold text-xl text-emerald-200 flex items-center gap-2 mb-4">
+                  <span>📚</span> How to Become a Wildlife Expert:
+                </h4>
+                
+                <div className="grid gap-3 text-sm leading-relaxed">
+                  <div className="flex items-start gap-3 group hover:bg-white/5 p-2 rounded-lg transition-colors duration-300">
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-300">🗺️</span>
+                    <span>Guess where each amazing animal lives in the wild</span>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 group hover:bg-white/5 p-2 rounded-lg transition-colors duration-300">
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-300">📏</span>
+                    <span>Estimate their size, weight, and measurements</span>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 group hover:bg-white/5 p-2 rounded-lg transition-colors duration-300">
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-300">🎯</span>
+                    <span>Place guess pieces on the world map and scales</span>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 group hover:bg-white/5 p-2 rounded-lg transition-colors duration-300">
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-300">🏆</span>
+                    <span>Score points for correct and close guesses</span>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 group hover:bg-white/5 p-2 rounded-lg transition-colors duration-300">
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-300">👑</span>
+                    <span>First to reach the victory threshold becomes the ultimate naturalist!</span>
+                  </div>
+                </div>
+                
+                {/* Victory Point Goals */}
+                <div className="mt-6 pt-4 border-t border-emerald-400/20">
+                  <h5 className="font-semibold text-emerald-200 mb-2 flex items-center gap-2">
+                    <span>🎯</span> Victory Goals:
+                  </h5>
+                  <div className="text-xs space-y-1 text-emerald-200/80">
+                    <div>🥇 2-3 Explorers: 120 points to win</div>
+                    <div>🥈 4-5 Explorers: 100 points to win</div>
+                    <div>🥉 6 Explorers: 80 points to win</div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (gameState.gameEnded && gameState.winner) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-8 flex items-center justify-center animate-fade-in">
-        <Card className="shadow-xl max-w-lg transform transition-all duration-500 hover:shadow-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-green-800 animate-bounce">Game Over!</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">
-                {gameState.winner.length === 1 ? 'Winner:' : 'Winners:'}
-              </h3>
-              {gameState.winner.map((winner, index) => (
-                <div key={winner.id} className="text-lg font-bold animate-fade-in" style={{ color: winner.color, animationDelay: `${index * 200}ms` }}>
-                  {winner.name} - {winner.score} points
-                </div>
-              ))}
-            </div>
-            <Button 
-              onClick={handleNewGame} 
-              className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105"
-            >
-              New Game
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-4 animate-fade-in">
-      <div className="max-w-[1800px] mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center animate-fade-in">
-          <h1 className="text-3xl font-bold text-green-800 mb-2">Fauna - Round {gameState.round}</h1>
-          <p className="text-gray-600">
-            Phase: <span className="font-semibold capitalize">{gameState.phase}</span>
-          </p>
-        </div>
-
-        {/* Top Row - Animal Card and Player Panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
-            {gameState.currentAnimal && (
-              <CollapsibleAnimalCard 
-                animal={gameState.currentAnimal}
-                showLowerHalf={gameState.showCardLowerHalf}
-                className="animate-fade-in"
-              />
-            )}
-          </div>
           
-          <div className="lg:col-span-2">
-            <PlayerPanel 
-              players={gameState.players}
-              currentPlayer={gameState.currentPlayer}
-              startingPlayer={gameState.startingPlayer}
-              className="animate-fade-in"
-            />
-          </div>
-
-          <div className="lg:col-span-1">
-            <GameControls
-              phase={gameState.phase}
-              onPass={passPlacement}
-              onEvaluate={evaluateRound}
-              onNextRound={nextRound}
-              onNewGame={handleNewGame}
-              showCardLowerHalf={gameState.showCardLowerHalf}
-              onToggleCardHalf={toggleCardHalf}
-              canPass={true}
-              className="animate-fade-in"
-            />
-          </div>
-        </div>
-
-        {/* Main Game Area - World Map */}
-        <div className="animate-fade-in">
-          <MapCanvas />
-        </div>
-
-        {/* Bottom Row - Measurement Scales */}
-        <div className="animate-fade-in">
-          <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">Measurement Scales</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.keys(SCALE_RANGES).map((scaleType, index) => (
-              <ScaleSelector
-                key={scaleType}
-                scaleType={scaleType as keyof typeof SCALE_RANGES}
-                placements={gameState.placements}
-                onScaleClick={handleScaleClick}
-                isRelevant={getRelevantScales().includes(scaleType as keyof typeof SCALE_RANGES)}
-                className="animate-fade-in"
-                //style={{ animationDelay: `${index * 100}ms` }}
-              />
-            ))}
+          {/* Footer Credits */}
+          <div className="text-center mt-6 text-emerald-200/60 text-sm animate-fade-in delay-1000">
+            <p>🌿 Inspired by the beloved Fauna board game 🌿</p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 };
 
 export default Index;

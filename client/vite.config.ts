@@ -8,6 +8,11 @@ export default defineConfig({
   plugins: [react(),
     tailwindcss(),
   ],
+  define: {
+    'process.env': {
+      REACT_APP_API_URL:  'http://localhost:5000/api/animals',
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
