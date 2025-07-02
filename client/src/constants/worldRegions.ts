@@ -1,12 +1,4 @@
-export const WORLD_AREAS = [
-  'Alaska', 'Canada', 'USA', 'Mexico', 'Central America', 'Caribbean',
-  'Greenland', 'Scandinavia', 'British Isles', 'Western Europe', 'Eastern Europe',
-  'Russia', 'Middle East', 'North Africa', 'West Africa', 'East Africa',
-  'Southern Africa', 'Madagascar', 'Arabian Peninsula', 'Central Asia',
-  'India', 'Southeast Asia', 'China', 'Japan', 'Indonesia', 'Philippines',
-  'Australia', 'New Zealand', 'Antarctica', 'Arctic Ocean', 'Atlantic Ocean',
-  'Pacific Ocean', 'Indian Ocean', 'Mediterranean', 'Red Sea'
-];
+
 
 export const SCALE_RANGES = {
   weight: ['0-1kg', '1-5kg', '5-20kg', '20-100kg', '100-500kg', '500kg-2t', '2t-10t', '10t+'],

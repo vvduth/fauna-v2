@@ -131,7 +131,7 @@ const GameArea = () => {
                     <CollapsibleAnimalCard
                       animal={currentAnimal}
                       className="w-full h-auto overflow-y-auto"
-                      showLowerHalf={true}
+                      showLowerHalf={false}
                     />
                   </>
                 ) : (

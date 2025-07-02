@@ -1,4 +1,4 @@
-import type { Animal, GameState, Player } from "@/types/game";
+import type { Animal, GameState, GuessPlacement, Player } from "@/types/game";
 import { create } from "zustand";
 import { SCALE_RANGES } from "@/constants/worldRegions";
 /**
@@ -130,9 +130,40 @@ export const useGameStore = create<GameState>((set, get) => ({
     location: string, 
     scaleType?: keyof typeof SCALE_RANGES
   ) => {
+    const {placements,currentPlayer, players} = get()
+
+    const currentPlayerData = players[currentPlayer];
+    if (currentPlayerData.guessPieces <= 0) {
+      console.warn(`Player ${currentPlayerData.name} has no guess pieces left`);
+      return; // Prevent placing guess if no pieces left
+    }
+
     if (type === 'area' ) {
       console.log(`Placing guess in area: ${location}`);
     }
+    const existingPlacement = placements.find(p => 
+      p.location === location  &&
+      p.type === type && (
+        type !== 'scale' || p.scaleType === scaleType
+      )
+    )
+    if (existingPlacement) {
+      console.warn(`Placement already exists for ${type} at ${location}`);
+      return; // Prevent duplicate placements
+    }
+    const newPlacement: GuessPlacement = {
+      playerId: currentPlayer.toString(),
+      type,
+      location,
+      scaleType: type === 'scale' ? scaleType : undefined // Only set for scale
+    }
+    const updatedPlayeras = players.map((player, index) => 
+    index === currentPlayer ? {...player, guessPieces: player.guessPieces - 1} : player)
+    set(state => ({
+      ...state,
+      placements: [...placements, newPlacement],
+      players: updatedPlayeras
+    }));
   },
   // Action to move to evaluation phase
   startEvaluation: () => {

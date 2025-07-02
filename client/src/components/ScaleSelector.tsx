@@ -1,19 +1,20 @@
 import React from 'react';
+import { SCALE_RANGES } from '@/constants/worldRegions';
+import { useGameStore } from '@/hooks/gameStore';
+import type { GuessPlacement } from '@/types/game';
 
-// Placeholder component for scale selection UI
-// TODO: Add props and functionality later
-const ScaleSelector = () => {
-  
-  // Mock data for placeholder demonstration
-  const mockScaleRanges = {
-    weight: ['1g-10g', '10g-100g', '100g-1kg', '1kg-10kg', '10kg-100kg', '100kg-1t', '1t+'],
-    length: ['1cm-5cm', '5cm-10cm', '10cm-50cm', '50cm-1m', '1m-2m', '2m-5m', '5m+'],
-    height: ['1cm-5cm', '5cm-10cm', '10cm-50cm', '50cm-1m', '1m-2m', '2m-3m', '3m+'],
-    tailLength: ['0cm', '1cm-5cm', '5cm-10cm', '10cm-50cm', '50cm-1m', '1m-2m', '2m+']
-  };
+// Props interface for ScaleSelector component
+interface ScaleSelectorProps {
+  className?: string;
+}
+
+// Functional ScaleSelector component connected to game store
+const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
+  // Get game state and actions from the store
+  const { placements, placeGuess, currentPlayer, players, phase } = useGameStore();
 
   // Enhanced scale labels with emojis and better descriptions
-  const scaleLabels = {
+  const scaleLabels: Record<keyof typeof SCALE_RANGES, { title: string; emoji: string; description: string }> = {
     weight: { 
       title: 'WEIGHT SCALE', 
       emoji: '⚖️', 
@@ -22,7 +23,7 @@ const ScaleSelector = () => {
     length: { 
       title: 'BODY LENGTH', 
       emoji: '📏', 
-      description: 'From nose to tail tip' 
+      description: 'From nose to body end (no tail)' 
     },
     height: { 
       title: 'HEIGHT SCALE', 
@@ -37,7 +38,7 @@ const ScaleSelector = () => {
   };
 
   // Enhanced unit system with proper measurement labels
-  const getScaleUnits = (scaleType: string) => {
+  const getScaleUnits = (scaleType: keyof typeof SCALE_RANGES) => {
     switch (scaleType) {
       case 'weight':
         return ['🪶 Light', '🏋️ Heavy'];
@@ -52,9 +53,42 @@ const ScaleSelector = () => {
     }
   };
 
-  // Placeholder function for button clicks
-  const handleScaleClick = (scaleType: string, range: string) => {
-    console.log(`Clicked ${scaleType} scale at ${range} - functionality to be implemented`);
+  // Get current player info for UI feedback
+  const currentPlayerData = players[currentPlayer];
+  const canPlaceGuess = phase === 'placement' && currentPlayerData?.guessPieces > 0;
+
+  // Handle scale click with proper game store integration
+  const handleScaleClick = (scaleType: keyof typeof SCALE_RANGES, range: string) => {
+    if (!canPlaceGuess) {
+      console.warn('Cannot place guess: wrong phase or no pieces left');
+      return;
+    }
+
+    console.log(`${currentPlayerData.name} placing guess on ${scaleType} scale at ${range}`);
+    placeGuess('scale', range, scaleType);
+  };
+
+  // Check if a scale range has a placement
+  const hasPlacement = (scaleType: keyof typeof SCALE_RANGES, range: string): GuessPlacement | undefined => {
+    return placements.find(p => 
+      p.location === range && 
+      p.type === 'scale' && 
+      p.scaleType === scaleType
+    );
+  };
+
+  // Get player color for placement indicators
+  const getPlayerColor = (playerId: string): string => {
+    const playerIndex = parseInt(playerId) || 0;
+    const playerColors = [
+      'bg-gradient-to-br from-red-500 to-red-600 shadow-red-400/50', // Player 1: Red
+      'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-400/50', // Player 2: Blue
+      'bg-gradient-to-br from-green-500 to-green-600 shadow-green-400/50', // Player 3: Green
+      'bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-yellow-400/50', // Player 4: Yellow
+      'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-400/50', // Player 5: Purple
+      'bg-gradient-to-br from-pink-500 to-pink-600 shadow-pink-400/50' // Player 6: Pink
+    ];
+    return playerColors[playerIndex] || 'bg-gradient-to-br from-gray-500 to-gray-600 shadow-gray-400/50';
   };
 
   return (
@@ -71,9 +105,10 @@ const ScaleSelector = () => {
         
         {/* Scales Grid with Enhanced Design */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Render each scale type */}
-          {Object.entries(mockScaleRanges).map(([scaleType, ranges], scaleIndex) => {
-            const scaleInfo = scaleLabels[scaleType as keyof typeof scaleLabels];
+          {/* Render each scale type using SCALE_RANGES constant */}
+          {Object.entries(SCALE_RANGES).map(([scaleTypeKey, ranges], scaleIndex) => {
+            const scaleType = scaleTypeKey as keyof typeof SCALE_RANGES;
+            const scaleInfo = scaleLabels[scaleType];
             const units = getScaleUnits(scaleType);
             
             return (
@@ -89,6 +124,14 @@ const ScaleSelector = () => {
                     <h4 className="font-bold text-sm tracking-wide">{scaleInfo.title}</h4>
                   </div>
                   <p className="text-xs text-emerald-100 opacity-90">{scaleInfo.description}</p>
+                  
+                  {/* Game state indicator */}
+                  {!canPlaceGuess && (
+                    <div className="text-xs mt-1 text-yellow-200 flex items-center justify-center gap-1">
+                      <span>⚠️</span>
+                      <span>{phase !== 'placement' ? 'Evaluation phase' : 'No pieces left'}</span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Unit Labels with Enhanced Design */}
@@ -97,42 +140,54 @@ const ScaleSelector = () => {
                   <span className="flex items-center gap-1">{units[1]}</span>
                 </div>
                 
-                {/* Scale Range Buttons with Glassmorphism */}
+                {/* Scale Range Buttons with Game State Integration */}
                 <div className="flex bg-gradient-to-b from-white/20 to-white/10 backdrop-blur-sm border-2 border-emerald-600 rounded-b-xl overflow-hidden shadow-xl">
-                  {ranges.map((range, index) => {
-                    // Mock some placement indicators for demo
-                    const hasPlacement = scaleIndex === 0 && index === 2; // Show demo placement on first scale
+                  {ranges.map((range: string, index: number) => {
+                    // Check if this range has a placement
+                    const placement = hasPlacement(scaleType, range);
+                    
+                    // Determine button styling based on game state
+                    const getButtonStyling = () => {
+                      if (placement) {
+                        // Show player color for existing placements
+                        return getPlayerColor(placement.playerId);
+                      } else if (canPlaceGuess) {
+                        // Available for placement
+                        return 'bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-emerald-400/30';
+                      } else {
+                        // Disabled state
+                        return 'bg-gradient-to-br from-gray-400 to-gray-500 shadow-gray-400/20 opacity-60';
+                      }
+                    };
                     
                     return (
                       <button
                         key={index}
                         className={`
-                          ${hasPlacement 
-                            ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-400/50' 
-                            : 'bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-emerald-400/30'
-                          }
+                          ${getButtonStyling()}
                           flex-1 py-4 px-2 text-xs font-bold text-white transition-all duration-300 
                           border-r border-emerald-600/50 last:border-r-0 relative group
-                          hover:scale-110 hover:shadow-xl cursor-pointer transform hover:z-10
-                          ${hasPlacement ? 'ring-2 ring-white ring-inset animate-pulse shadow-lg' : ''}
+                          ${canPlaceGuess && !placement ? 'hover:scale-110 hover:shadow-xl cursor-pointer transform hover:z-10' : 'cursor-not-allowed'}
+                          ${placement ? 'ring-2 ring-white ring-inset animate-pulse shadow-lg' : ''}
                         `}
-                        onClick={() => handleScaleClick(scaleType, range)}
-                        title={`${scaleInfo.title}: ${range}`}
+                        onClick={() => canPlaceGuess && !placement && handleScaleClick(scaleType, range)}
+                        disabled={!canPlaceGuess || !!placement}
+                        title={`${scaleInfo.title}: ${range}${placement ? ` (${players.find(p => p.id === `player-${parseInt(placement.playerId) + 1}`)?.name || 'Player'})` : ''}`}
                       >
                         {/* Hover overlay for better feedback */}
                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
                         {/* Range text with better formatting */}
                         <span className="block leading-tight relative z-10">
-                          {range.split('-').map((part, i) => (
+                          {range.split('-').map((part: string, i: number) => (
                             <span key={i} className="block text-center text-xs">
                               {part.trim()}
                             </span>
                           ))}
                         </span>
                         
-                        {/* Placement indicator for demo */}
-                        {hasPlacement && (
+                        {/* Placement indicator */}
+                        {placement && (
                           <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border border-emerald-600 animate-ping" />
                         )}
                       </button>
@@ -140,10 +195,10 @@ const ScaleSelector = () => {
                   })}
                 </div>
                 
-                {/* Scale Footer with Tips */}
+                {/* Scale Footer with Game Status */}
                 <div className="bg-black/20 px-3 py-2 text-center rounded-b-xl">
                   <p className="text-emerald-200/70 text-xs">
-                    Click to place your guess piece
+                    {canPlaceGuess ? 'Click to place your guess piece' : phase === 'evaluation' ? 'Evaluation phase - no more guesses' : 'No guess pieces remaining'}
                   </p>
                 </div>
               </div>
@@ -151,8 +206,46 @@ const ScaleSelector = () => {
           })}
         </div>
         
-        {/* Instructions Panel */}
+        {/* Game Status Panel */}
         <div className="mt-8 bg-black/20 rounded-xl p-4 border border-white/10">
+          <div className="text-center mb-4">
+            <h4 className="text-emerald-200 font-semibold mb-2 flex items-center justify-center gap-2">
+              <span>🎮</span>
+              Game Status
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-emerald-100 text-sm">
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <div 
+                    className="w-4 h-4 rounded-full border-2 border-white"
+                    style={{ backgroundColor: currentPlayerData?.color }}
+                  />
+                  <span className="font-bold">{currentPlayerData?.name}</span>
+                </div>
+                <p className="text-xs opacity-80">Current Player</p>
+              </div>
+              
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span>🎯</span>
+                  <span className="font-bold">{currentPlayerData?.guessPieces}</span>
+                </div>
+                <p className="text-xs opacity-80">Guess Pieces Left</p>
+              </div>
+              
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span>⚡</span>
+                  <span className="font-bold capitalize">{phase}</span>
+                </div>
+                <p className="text-xs opacity-80">Game Phase</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Instructions Panel */}
+        <div className="mt-6 bg-black/20 rounded-xl p-4 border border-white/10">
           <div className="text-center">
             <h4 className="text-emerald-200 font-semibold mb-2 flex items-center justify-center gap-2">
               <span>💡</span>
@@ -180,14 +273,6 @@ const ScaleSelector = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Development Notice */}
-        <div className="mt-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600/20 border border-amber-400/50 rounded-lg text-amber-200 text-sm">
-            <span>🚧</span>
-            <span>Placeholder UI - Functionality to be implemented</span>
           </div>
         </div>
       </div>
