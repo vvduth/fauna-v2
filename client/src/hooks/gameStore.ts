@@ -181,6 +181,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       type,
       location,
       scaleType: type === "scale" ? scaleType : undefined,
+      color: currentPlayerData.color, // Use player's color for guess piece
     };
 
     let updatedPlayers = players;

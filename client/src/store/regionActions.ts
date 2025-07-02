@@ -1,6 +1,6 @@
 // Region creation and management actions
 import type { MapState } from "../types/store";
-import type { CustomRegion } from "../types/game";
+import type { ClaimedRegion, CustomRegion } from "../types/game";
 import { MAP_CONFIG } from "../constants/mapConfig";
 import { hexCodeRandom } from "../utils/color";
 
@@ -158,7 +158,6 @@ export const createRegionActions = (set: any, get: () => MapState) => ({
           cursorStyle: "crosshair", // Reset cursor style
         });
 
-        
         console.log("Regions loaded successfully:");
       } catch (error: any) {
         alert("Error loading regions: " + error.message);
@@ -167,48 +166,54 @@ export const createRegionActions = (set: any, get: () => MapState) => ({
     };
     reader.readAsText(file);
   },
-  
+
   // Handle region click detection - find which region contains the clicked cell
   handleRegionClick: (gridX: number, gridY: number) => {
     const { customRegions } = get();
-    
+
     // Search through all custom regions to find which one contains this cell
     for (const [regionName, region] of Object.entries(customRegions)) {
       // Check if the clicked cell is within this region
       const cellInRegion = region.cells.find(
-        cell => cell.x === gridX && cell.y === gridY
+        (cell) => cell.x === gridX && cell.y === gridY
       );
-      
+
       if (cellInRegion) {
         // Found the region containing this cell
-        const regionInfo = `Region: "${region.name}" | Cells: ${region.cellCount} | Created: ${new Date(region.created).toLocaleDateString()}`;
-        
+        const regionInfo = `Region: "${region.name}" | Cells: ${
+          region.cellCount
+        } | Created: ${new Date(region.created).toLocaleDateString()}`;
+
         // Update the clicked region info for display
-        set({ 
+        set({
           clickedRegionInfo: regionInfo,
-          selectedRegion: region 
+          selectedRegion: region,
         });
-        
+
         // Show alert with region information
-        //alert(`Region Information:\n\nName: ${region.name}\nCells: ${region.cellCount}\nColor: ${region.color}\nCreated: ${new Date(region.created).toLocaleString()}`);
-        
-        console.log(`Clicked on region "${region.name}":`, region);
         return region;
       }
     }
-    
+
     // No region found at this location
-    set({ 
-      clickedRegionInfo: '',
-      selectedRegion: null 
+    set({
+      clickedRegionInfo: "",
+      selectedRegion: null,
     });
-    
+
     return null;
   },
-  
+
   // Set the clicked region information for display
   setClickedRegionInfo: (info: string) => {
     set({ clickedRegionInfo: info });
+  },
+  
+  // Set claimed regions - replaces existing claimed regions
+  setClaimedRegions: (regions: ClaimedRegion[]) => {
+    set({
+      claimRegions: regions, // Replace all claimed regions with new list
+    });
   },
   
 });

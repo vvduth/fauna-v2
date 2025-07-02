@@ -28,6 +28,8 @@ export interface CustomRegion {
   bounds?: any;
 }
 
+export type ClaimedRegion = { playerId: string; color: string; region: CustomRegion }
+
 // Animal data structure for the game cards
 export interface AnimalMeasurements {
   weight?: {
@@ -105,6 +107,7 @@ export interface GuessPlacement {
   type: "area" | "scale";
   location: string; // area name or scale position
   scaleType?: "weight" | "length" | "totalLength" | "height" | "tailLength";
+  color: string; // Color for the guess piece
 }
 
 export interface GameState {

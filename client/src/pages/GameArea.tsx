@@ -17,7 +17,7 @@ const GameArea = () => {
     useGameStore();
 
   useEffect(() => {
-    console.log("GameArea mounted with players:", players);
+    
   }, [players]);
 
   const handleGetAnimal = async () => {

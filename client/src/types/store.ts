@@ -1,5 +1,5 @@
 // Store-specific type definitions for Zustand state management
-import type { MapConfig, CustomRegion } from './game';
+import type { MapConfig, CustomRegion, ClaimedRegion } from './game';
 
 // Main state interface for the map store
 export interface MapState {
@@ -36,6 +36,7 @@ export interface MapState {
     subRegions: Record<string, Region>;
     oceanRegions: Record<string, Region>;
     customRegions: Record<string, CustomRegion>;
+    claimRegions: ClaimedRegion[];
     
     // Currently selected region
     selectedRegion: any;
@@ -55,6 +56,7 @@ export interface MapState {
     drawMapBoundary: (ctx: CanvasRenderingContext2D, mapConfig: MapConfig) => void;
     drawSelectedCells: (ctx: CanvasRenderingContext2D) => void;
     drawCustomRegion: (ctx: CanvasRenderingContext2D, region: CustomRegion) => void;
+    drawClaimedRegion : (ctx: CanvasRenderingContext2D, region: CustomRegion, playerColor: string) => void;
     
     
     // Control actions for map interaction
@@ -74,6 +76,7 @@ export interface MapState {
     handleCellSelection: (gridX: number, gridY: number) => void;
     saveRegionsToFile: () => void;
     loadRegionsFromFile: (file: File) => void;
+    setClaimedRegions: (regions: ClaimedRegion[]) => void;
     
     // Region interaction actions
     handleRegionClick: (gridX: number, gridY: number) => CustomRegion | null;

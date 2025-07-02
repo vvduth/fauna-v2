@@ -45,6 +45,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     subRegions: {},
     oceanRegions: {},
     customRegions: {},
+    claimRegions: [],
     
     // Currently selected region
     selectedRegion: null,
