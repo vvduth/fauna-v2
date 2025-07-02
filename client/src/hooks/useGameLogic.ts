@@ -157,7 +157,8 @@ export const useGameLogic =  () => {
     round: 1,
     placements: [],
     showCardLowerHalf: false,
-    gameEnded: false
+    gameEnded: false,
+    
   });
 
   const initializeGame = useCallback(async (playerNames: string[]) => {

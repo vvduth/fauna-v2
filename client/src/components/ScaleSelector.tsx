@@ -55,7 +55,15 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
 
   // Get current player info for UI feedback
   const currentPlayerData = players[currentPlayer];
+  const currentPlayerPlacements = placements.filter(
+    (p) => p.playerId === currentPlayer.toString()
+  );
   const canPlaceGuess = phase === 'placement' && currentPlayerData?.guessPieces > 0;
+  
+  // Check placement status for one-piece-per-turn rule
+  const placementCount = currentPlayerPlacements.length;
+  const hasExactlyOnePiece = placementCount === 1;
+  const hasNoPieces = placementCount === 0;
 
   // Handle scale click with proper game store integration
   const handleScaleClick = (scaleType: keyof typeof SCALE_RANGES, range: string) => {
@@ -130,6 +138,21 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
                     <div className="text-xs mt-1 text-yellow-200 flex items-center justify-center gap-1">
                       <span>⚠️</span>
                       <span>{phase !== 'placement' ? 'Evaluation phase' : 'No pieces left'}</span>
+                    </div>
+                  )}
+                  
+                  {/* One piece per turn indicator */}
+                  {canPlaceGuess && hasExactlyOnePiece && (
+                    <div className="text-xs mt-1 text-green-200 flex items-center justify-center gap-1">
+                      <span>✅</span>
+                      <span>1 piece placed - click to move it</span>
+                    </div>
+                  )}
+                  
+                  {canPlaceGuess && hasNoPieces && (
+                    <div className="text-xs mt-1 text-blue-200 flex items-center justify-center gap-1">
+                      <span>🎯</span>
+                      <span>Place your 1 guess piece</span>
                     </div>
                   )}
                 </div>
@@ -235,10 +258,10 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
               
               <div className="bg-white/10 rounded-lg p-3">
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <span>⚡</span>
-                  <span className="font-bold capitalize">{phase}</span>
+                  <span>📍</span>
+                  <span className="font-bold">{placementCount}/1</span>
                 </div>
-                <p className="text-xs opacity-80">Game Phase</p>
+                <p className="text-xs opacity-80">Pieces This Turn</p>
               </div>
             </div>
           </div>
