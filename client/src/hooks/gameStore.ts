@@ -166,7 +166,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     // Check if player has pieces left (only for new placements when they have no current placements)
-    if (currentPlayerPlacements.length === 0 && currentPlayerData.guessPieces <= 0) {
+    if (
+      currentPlayerPlacements.length === 0 &&
+      currentPlayerData.guessPieces <= 0
+    ) {
       console.warn(`Player ${currentPlayerData.name} has no guess pieces left`);
       return;
     }
@@ -232,41 +235,48 @@ export const useGameStore = create<GameState>((set, get) => ({
       players: updatedPlayers,
     }));
   },
-  removeGuess: (type: "area" | "scale", location: string, scaleType?: keyof typeof SCALE_RANGES) => {
+  removeGuess: (
+    type: "area" | "scale",
+    location: string,
+    scaleType?: keyof typeof SCALE_RANGES
+  ) => {
     const { placements, currentPlayer, players, phase } = get();
 
-  if (phase !== 'placement') {
-    console.warn('Cannot remove guess pieces during evaluation phase');
-    return;
-  }
+    if (phase !== "placement") {
+      console.warn("Cannot remove guess pieces during evaluation phase");
+      return;
+    }
 
-  const placementToRemove = placements.find(p => 
-    p.location === location &&
-    p.type === type &&
-    (type !== 'scale' || p.scaleType === scaleType) &&
-    p.playerId === currentPlayer.toString()
-  );
+    const placementToRemove = placements.find(
+      (p) =>
+        p.location === location &&
+        p.type === type &&
+        (type !== "scale" || p.scaleType === scaleType) &&
+        p.playerId === currentPlayer.toString()
+    );
 
-  if (!placementToRemove) {
-    console.warn('No placement found to remove at this location');
-    return;
-  }
+    if (!placementToRemove) {
+      console.warn("No placement found to remove at this location");
+      return;
+    }
 
-  // Remove the placement and return the piece to the player
-  const updatedPlacements = placements.filter(p => p !== placementToRemove);
-  const updatedPlayers = players.map((player, index) => 
-    index === currentPlayer 
-      ? { ...player, guessPieces: player.guessPieces + 1 } 
-      : player
-  );
+    // Remove the placement and return the piece to the player
+    const updatedPlacements = placements.filter((p) => p !== placementToRemove);
+    const updatedPlayers = players.map((player, index) =>
+      index === currentPlayer
+        ? { ...player, guessPieces: player.guessPieces + 1 }
+        : player
+    );
 
-  set(state => ({
-    ...state,
-    placements: updatedPlacements,
-    players: updatedPlayers
-  }));
+    set((state) => ({
+      ...state,
+      placements: updatedPlacements,
+      players: updatedPlayers,
+    }));
 
-  console.log(`${players[currentPlayer].name} removed their ${type} guess from ${location}`);
+    console.log(
+      `${players[currentPlayer].name} removed their ${type} guess from ${location}`
+    );
   },
   // Action to move to evaluation phase
   startEvaluation: () => {
@@ -277,44 +287,46 @@ export const useGameStore = create<GameState>((set, get) => ({
     }));
   },
   // Manual turn advancement - called when player clicks "End Turn"
-// Players can only end turn if they have exactly one guess piece placed
-endTurn: () => {
-  const { currentPlayer, players, phase, placements } = get();
-  
-  if (phase !== 'placement') {
-    console.warn('Cannot end turn during evaluation phase');
-    return;
-  }
+  // Players can only end turn if they have exactly one guess piece placed
+  endTurn: () => {
+    const { currentPlayer, players, phase, placements } = get();
 
-  const currentPlayerData = players[currentPlayer];
-  
-  // Get current player's placements for this turn
-  const currentPlayerPlacements = placements.filter(
-    (p) => p.playerId === currentPlayer.toString()
-  );
+    if (phase !== "placement") {
+      console.warn("Cannot end turn during evaluation phase");
+      return;
+    }
 
-  // Enforce rule: Player must have exactly one piece placed to end turn
-  
+    const currentPlayerData = players[currentPlayer];
 
-  if (currentPlayerPlacements.length > 1) {
-    console.warn(`${currentPlayerData.name} has ${currentPlayerPlacements.length} pieces placed. Only one piece allowed per turn.`);
-    return;
-  }
+    // Get current player's placements for this turn
+    const currentPlayerPlacements = placements.filter(
+      (p) => p.playerId === currentPlayer.toString()
+    );
 
-  // Player has exactly one piece placed - can end turn
-  const nextPlayerIndex = (currentPlayer + 1) % players.length;
+    // Enforce rule: Player must have exactly one piece placed to end turn
 
-  set(state => ({
-    ...state,
-    currentPlayer: nextPlayerIndex
-  }));
+    if (currentPlayerPlacements.length > 1) {
+      console.warn(
+        `${currentPlayerData.name} has ${currentPlayerPlacements.length} pieces placed. Only one piece allowed per turn.`
+      );
+      return;
+    }
 
+    // Player has exactly one piece placed - can end turn
+    const nextPlayerIndex = (currentPlayer + 1) % players.length;
 
-  if (currentPlayerPlacements.length === 0) {
-    console.log(`${currentPlayerData.name} pass turn with 0 pieces placed.`);
-  }
-  console.log(`${currentPlayerData.name} ended their turn with 1 piece placed. Next player: ${players[nextPlayerIndex].name}`);
-},
+    set((state) => ({
+      ...state,
+      currentPlayer: nextPlayerIndex,
+    }));
+
+    if (currentPlayerPlacements.length === 0) {
+      console.log(`${currentPlayerData.name} pass turn with 0 pieces placed.`);
+    }
+    console.log(
+      `${currentPlayerData.name} ended their turn with 1 piece placed. Next player: ${players[nextPlayerIndex].name}`
+    );
+  },
   // Action to end round and prepare for next
   endRound: () => {
     set((state) => {

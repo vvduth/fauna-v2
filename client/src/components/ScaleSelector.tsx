@@ -101,18 +101,18 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
 
   return (
     <div className="animate-fade-in delay-800">
-      <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-2xl p-6 shadow-2xl border">
-        <div className="text-center mb-6">
-          <h3 className="text-3xl font-bold text-emerald-200 flex items-center justify-center gap-3">
+      <div className="backdrop-blur-lg bg-white/10 border-white/20 rounded-xl p-1 shadow-xl border">
+        <div className="text-center mb-3">
+          <h3 className="text-lg font-bold text-emerald-200 flex items-center justify-center gap-2">
             <span>📏</span>
-            Measurement Scales
+            Scales
             <span>⚖️</span>
           </h3>
-          <p className="text-emerald-200/70 mt-2">Estimate the animal's physical characteristics</p>
+          <p className="text-emerald-200/70 mt-1 text-xs">Estimate measurements</p>
         </div>
         
-        {/* Scales Grid with Enhanced Design */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Scales Grid - Compact Layout for Sidebar */}
+        <div className="grid grid-cols-1 gap-3">
           {/* Render each scale type using SCALE_RANGES constant */}
           {Object.entries(SCALE_RANGES).map(([scaleTypeKey, ranges], scaleIndex) => {
             const scaleType = scaleTypeKey as keyof typeof SCALE_RANGES;
@@ -122,49 +122,47 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
             return (
               <div 
                 key={scaleType}
-                className="transform transition-all duration-300 hover:scale-105 animate-fade-in"
-                style={{ animationDelay: `${scaleIndex * 150}ms` }}
+                className="transform transition-all duration-300 hover:scale-[1.02] animate-fade-in"
+                style={{ animationDelay: `${scaleIndex * 100}ms` }}
               >
-                {/* Scale Header with Nature Theme */}
-                <div className="bg-gradient-to-r from-emerald-700 via-green-700 to-emerald-700 text-white px-4 py-3 text-center rounded-t-xl border-b-2 border-emerald-500 shadow-lg">
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <span className="text-xl">{scaleInfo.emoji}</span>
-                    <h4 className="font-bold text-sm tracking-wide">{scaleInfo.title}</h4>
+                {/* Compact Scale Header */}
+                <div className="bg-gradient-to-r from-emerald-700 via-green-700 to-emerald-700 text-white px-2 py-2 text-center rounded-t-lg border-b border-emerald-500 shadow-md">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <span className="text-sm">{scaleInfo.emoji}</span>
+                    <h4 className="font-bold text-xs tracking-wide">{scaleInfo.title}</h4>
                   </div>
-                  <p className="text-xs text-emerald-100 opacity-90">{scaleInfo.description}</p>
                   
-                  {/* Game state indicator */}
+                  {/* Simplified status indicators */}
                   {!canPlaceGuess && (
-                    <div className="text-xs mt-1 text-yellow-200 flex items-center justify-center gap-1">
+                    <div className="text-xs text-yellow-200 flex items-center justify-center gap-1">
                       <span>⚠️</span>
-                      <span>{phase !== 'placement' ? 'Evaluation phase' : 'No pieces left'}</span>
+                      <span className="truncate">{phase !== 'placement' ? 'Evaluation' : 'No pieces'}</span>
                     </div>
                   )}
                   
-                  {/* One piece per turn indicator */}
                   {canPlaceGuess && hasExactlyOnePiece && (
-                    <div className="text-xs mt-1 text-green-200 flex items-center justify-center gap-1">
+                    <div className="text-xs text-green-200 flex items-center justify-center gap-1">
                       <span>✅</span>
-                      <span>1 piece placed - click to move it</span>
+                      <span className="truncate">Placed</span>
                     </div>
                   )}
                   
                   {canPlaceGuess && hasNoPieces && (
-                    <div className="text-xs mt-1 text-blue-200 flex items-center justify-center gap-1">
+                    <div className="text-xs text-blue-200 flex items-center justify-center gap-1">
                       <span>🎯</span>
-                      <span>Place your 1 guess piece</span>
+                      <span className="truncate">Place piece</span>
                     </div>
                   )}
                 </div>
                 
-                {/* Unit Labels with Enhanced Design */}
-                <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-3 py-2 flex justify-between text-white text-xs font-semibold border-b border-emerald-500">
-                  <span className="flex items-center gap-1">{units[0]}</span>
-                  <span className="flex items-center gap-1">{units[1]}</span>
+                {/* Compact Unit Labels */}
+                <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-2 py-1 flex justify-between text-white text-xs font-semibold border-b border-emerald-500">
+                  <span className="flex items-center gap-1 text-xs">{units[0]}</span>
+                  <span className="flex items-center gap-1 text-xs">{units[1]}</span>
                 </div>
                 
-                {/* Scale Range Buttons with Game State Integration */}
-                <div className="flex bg-gradient-to-b from-white/20 to-white/10 backdrop-blur-sm border-2 border-emerald-600 rounded-b-xl overflow-hidden shadow-xl">
+                {/* Compact Scale Range Buttons */}
+                <div className="flex bg-gradient-to-b from-white/20 to-white/10 backdrop-blur-sm border-2 border-emerald-600 rounded-b-lg overflow-hidden shadow-lg">
                   {ranges.map((range: string, index: number) => {
                     // Check if this range has a placement
                     const placement = hasPlacement(scaleType, range);
@@ -188,10 +186,10 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
                         key={index}
                         className={`
                           ${getButtonStyling()}
-                          flex-1 py-4 px-2 text-xs font-bold text-white transition-all duration-300 
+                          flex-1 py-2 px-1 text-xs font-bold text-white transition-all duration-300 
                           border-r border-emerald-600/50 last:border-r-0 relative group
-                          ${canPlaceGuess && !placement ? 'hover:scale-110 hover:shadow-xl cursor-pointer transform hover:z-10' : 'cursor-not-allowed'}
-                          ${placement ? 'ring-2 ring-white ring-inset animate-pulse shadow-lg' : ''}
+                          ${canPlaceGuess && !placement ? 'hover:scale-105 hover:shadow-lg cursor-pointer transform hover:z-10' : 'cursor-not-allowed'}
+                          ${placement ? 'ring-1 ring-white ring-inset animate-pulse shadow-md' : ''}
                         `}
                         onClick={() => canPlaceGuess && !placement && handleScaleClick(scaleType, range)}
                         disabled={!canPlaceGuess || !!placement}
@@ -200,99 +198,94 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ className = '' }) => {
                         {/* Hover overlay for better feedback */}
                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
-                        {/* Range text with better formatting */}
+                        {/* Compact range text */}
                         <span className="block leading-tight relative z-10">
                           {range.split('-').map((part: string, i: number) => (
-                            <span key={i} className="block text-center text-xs">
+                            <span key={i} className="block text-center text-xs leading-tight">
                               {part.trim()}
                             </span>
                           ))}
                         </span>
                         
-                        {/* Placement indicator */}
+                        {/* Smaller placement indicator */}
                         {placement && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border border-emerald-600 animate-ping" />
+                          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full border border-emerald-600 animate-ping" />
                         )}
                       </button>
                     );
                   })}
                 </div>
                 
-                {/* Scale Footer with Game Status */}
-                <div className="bg-black/20 px-3 py-2 text-center rounded-b-xl">
-                  <p className="text-emerald-200/70 text-xs">
-                    {canPlaceGuess ? 'Click to place your guess piece' : phase === 'evaluation' ? 'Evaluation phase - no more guesses' : 'No guess pieces remaining'}
-                  </p>
-                </div>
+                {/* Removed footer for compact design */}
               </div>
             );
           })}
         </div>
         
-        {/* Game Status Panel */}
-        <div className="mt-8 bg-black/20 rounded-xl p-4 border border-white/10">
-          <div className="text-center mb-4">
-            <h4 className="text-emerald-200 font-semibold mb-2 flex items-center justify-center gap-2">
+        {/* Compact Game Status Panel */}
+        <div className="mt-4 bg-black/20 rounded-lg p-3 border border-white/10">
+          <div className="text-center">
+            <h4 className="text-emerald-200 font-semibold mb-2 flex items-center justify-center gap-2 text-sm">
               <span>🎮</span>
-              Game Status
+              Status
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-emerald-100 text-sm">
-              <div className="bg-white/10 rounded-lg p-3">
-                <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="grid grid-cols-3 gap-2 text-emerald-100 text-xs">
+              <div className="bg-white/10 rounded p-2">
+                <div className="flex items-center justify-center gap-1 mb-1">
                   <div 
-                    className="w-4 h-4 rounded-full border-2 border-white"
+                    className="w-3 h-3 rounded-full border border-white"
                     style={{ backgroundColor: currentPlayerData?.color }}
                   />
-                  <span className="font-bold">{currentPlayerData?.name}</span>
+                  <span className="font-bold text-xs truncate">{currentPlayerData?.name}</span>
                 </div>
-                <p className="text-xs opacity-80">Current Player</p>
+                <p className="text-xs opacity-80">Player</p>
               </div>
               
-              <div className="bg-white/10 rounded-lg p-3">
-                <div className="flex items-center justify-center gap-2 mb-1">
+              <div className="bg-white/10 rounded p-2">
+                <div className="flex items-center justify-center gap-1 mb-1">
                   <span>🎯</span>
                   <span className="font-bold">{currentPlayerData?.guessPieces}</span>
                 </div>
-                <p className="text-xs opacity-80">Guess Pieces Left</p>
+                <p className="text-xs opacity-80">Pieces</p>
               </div>
               
-              <div className="bg-white/10 rounded-lg p-3">
-                <div className="flex items-center justify-center gap-2 mb-1">
+              <div className="bg-white/10 rounded p-2">
+                <div className="flex items-center justify-center gap-1 mb-1">
                   <span>📍</span>
                   <span className="font-bold">{placementCount}/1</span>
                 </div>
-                <p className="text-xs opacity-80">Pieces This Turn</p>
+                <p className="text-xs opacity-80">Turn</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Instructions Panel */}
-        <div className="mt-6 bg-black/20 rounded-xl p-4 border border-white/10">
+        {/* Compact Instructions Panel */}
+        <div className="mt-3 bg-black/20 rounded-lg p-3 border border-white/10">
           <div className="text-center">
-            <h4 className="text-emerald-200 font-semibold mb-2 flex items-center justify-center gap-2">
+            <h4 className="text-emerald-200 font-semibold mb-2 flex items-center justify-center gap-2 text-sm">
               <span>💡</span>
-              Measurement Guide
+              Scoring
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-emerald-100 text-sm">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-2 text-emerald-100 text-xs">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1">
                   <span>🎯</span>
-                  <span>Exact match = 7 points</span>
+                  <span>Exact = 7pts</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <span>📍</span>
-                  <span>Adjacent range = 3 points</span>
+                  <span>Near = 3pts</span>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1">
                   <span>❌</span>
-                  <span>Wrong guess = 0 points</span>
+                  <span>Wrong = 0pts</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <span>📦</span>
-                  <span>Wrong pieces go to stock</span>
+                  <span>To stock</span>
                 </div>
               </div>
             </div>
