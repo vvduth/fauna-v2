@@ -7,12 +7,25 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import animalRoutes from "./routes/animals";
+import  {Server}from "socket.io"
+import { setupGameSocket } from "./websocket/gameSocket";
 import { MigrationRunner } from "./database/migrationRunner";
-
+import { createServer } from 'http';
 // Load environment variables
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app)
+// Setup Socket.IO with CORS
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.CLIENT_URL || "http://localhost:5173",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Setup game socket handlers
+setupGameSocket(io);
 const PORT = process.env.PORT || 5000;
 
 // Middleware setup
@@ -67,7 +80,7 @@ async function startServer() {
         }
 
         // Start the HTTP server
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`✅ Game areas loaded: ${AREAS.length}`);
             console.log(`✅ Database initialized and ready`);
             console.log(`🚀 Fauna Research Engine running on PORT ${PORT}`);
